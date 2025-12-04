@@ -413,63 +413,6 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* Developer KPI Summary */}
-      {kpiScores.length > 0 && (
-        <div className="rounded-xl border bg-card p-6">
-          <h2 className="mb-4 text-lg font-semibold">Team KPI Summary (Current Month)</h2>
-          <div className="space-y-3">
-            {kpiScores.map((kpi) => {
-              const dev = developers.find((d) => d.id === kpi.developerId);
-              return (
-                <div
-                  key={kpi.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-lg">
-                      👤
-                    </div>
-                    <div>
-                      <p className="font-medium">{dev?.name || "Unknown"}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {kpi.completedTickets} tickets • {kpi.totalBugs} bugs
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="text-center">
-                      <p className="text-muted-foreground">Delivery</p>
-                      <p className={`font-bold ${getScoreColor(kpi.deliveryScore)}`}>
-                        {kpi.deliveryScore.toFixed(0)}%
-                      </p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-muted-foreground">Quality</p>
-                      <p className={`font-bold ${getScoreColor(kpi.qualityScore)}`}>
-                        {kpi.qualityScore.toFixed(0)}%
-                      </p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-muted-foreground">Overall</p>
-                      <p className={`font-bold ${getScoreColor(kpi.overallScore)}`}>
-                        {kpi.overallScore.toFixed(0)}%
-                      </p>
-                    </div>
-                    {kpi.trend && (
-                      <div className="text-lg">
-                        {kpi.trend === "improving" && "📈"}
-                        {kpi.trend === "stable" && "➡️"}
-                        {kpi.trend === "declining" && "📉"}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
       {/* Monthly Trend Chart Widget - Full width */}
       <div className="rounded-xl border bg-card p-6">
         <div className="mb-4 flex items-center justify-between">
