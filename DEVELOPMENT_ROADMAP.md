@@ -376,9 +376,7 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 9.4 App Preferences
 
-- [ ] Theme toggle (dark/light/system)
-- [ ] Working days configuration
-- [ ] Date format preference
+- [x] Theme toggle (dark/light/system)
 
 **Deliverable:** Configurable app settings
 
