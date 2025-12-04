@@ -29,9 +29,9 @@ export interface MonthlyKPI {
   overallScore: number;
 
   // Trend
-  trend: KPITrend;
+  trend?: KPITrend;
 
-  generatedAt: Date;
+  generatedAt: string;
 }
 
 export interface KPIConfig {
