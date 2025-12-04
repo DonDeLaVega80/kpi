@@ -17,6 +17,7 @@ pub fn run_migrations(conn: &Connection) -> Result<(), String> {
     let migrations: Vec<(&str, &str)> = vec![
         ("001_initial_schema", include_str!("migrations/001_initial_schema.sql")),
         ("002_bug_resolver", include_str!("migrations/002_bug_resolver.sql")),
+        ("003_add_indexes", include_str!("migrations/003_add_indexes.sql")),
     ];
 
     for (name, sql) in migrations {

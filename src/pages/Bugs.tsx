@@ -484,6 +484,7 @@ export function Bugs() {
         loading={loading}
         getRowKey={(bug) => bug.id}
         onRowClick={handleRowClick}
+        pagination={{ itemsPerPage: 25, showPagination: true }}
         emptyState={{
           icon: "🐛",
           title: search || severityFilter !== "all" || typeFilter !== "all" || resolvedFilter !== "all"

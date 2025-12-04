@@ -1,3 +1,4 @@
+import * as React from "react";
 import {
   Table,
   TableBody,
@@ -8,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { EmptyState } from "./empty-state";
 import { TableSkeleton } from "./table-skeleton";
+import { Pagination } from "./pagination";
 
 export interface Column<T> {
   key: string;
@@ -28,6 +30,10 @@ interface DataTableProps<T> {
   };
   onRowClick?: (item: T) => void;
   getRowKey: (item: T) => string;
+  pagination?: {
+    itemsPerPage?: number;
+    showPagination?: boolean;
+  };
 }
 
 export function DataTable<T>({
@@ -37,7 +43,26 @@ export function DataTable<T>({
   emptyState,
   onRowClick,
   getRowKey,
+  pagination,
 }: DataTableProps<T>) {
+  const itemsPerPage = pagination?.itemsPerPage || 25;
+  const showPagination = pagination?.showPagination !== false && data.length > itemsPerPage;
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [itemsPerPageState, setItemsPerPageState] = React.useState(itemsPerPage);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(data.length / itemsPerPageState);
+  const startIndex = (currentPage - 1) * itemsPerPageState;
+  const endIndex = startIndex + itemsPerPageState;
+  const paginatedData = showPagination ? data.slice(startIndex, endIndex) : data;
+
+  // Reset to page 1 when data changes significantly
+  React.useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1);
+    }
+  }, [data.length, totalPages, currentPage]);
+
   if (loading) {
     return <TableSkeleton rows={5} columns={columns.length} />;
   }
@@ -54,33 +79,45 @@ export function DataTable<T>({
   }
 
   return (
-    <div className="rounded-lg border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {columns.map((column) => (
-              <TableHead key={column.key} className={column.className}>
-                {column.header}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.map((item) => (
-            <TableRow
-              key={getRowKey(item)}
-              className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""}
-              onClick={() => onRowClick?.(item)}
-            >
+    <div className="space-y-4">
+      <div className="rounded-lg border">
+        <Table>
+          <TableHeader>
+            <TableRow>
               {columns.map((column) => (
-                <TableCell key={column.key} className={column.className}>
-                  {column.cell(item)}
-                </TableCell>
+                <TableHead key={column.key} className={column.className}>
+                  {column.header}
+                </TableHead>
               ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {paginatedData.map((item) => (
+              <TableRow
+                key={getRowKey(item)}
+                className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""}
+                onClick={() => onRowClick?.(item)}
+              >
+                {columns.map((column) => (
+                  <TableCell key={column.key} className={column.className}>
+                    {column.cell(item)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+      {showPagination && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          itemsPerPage={itemsPerPageState}
+          totalItems={data.length}
+          onItemsPerPageChange={setItemsPerPageState}
+        />
+      )}
     </div>
   );
 }

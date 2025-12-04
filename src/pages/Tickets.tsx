@@ -395,6 +395,7 @@ export function Tickets() {
         loading={loading}
         getRowKey={(ticket) => ticket.id}
         onRowClick={handleRowClick}
+        pagination={{ itemsPerPage: 25, showPagination: true }}
         emptyState={{
           icon: "🎫",
           title: search || statusFilter !== "all" || developerFilter !== "all" 

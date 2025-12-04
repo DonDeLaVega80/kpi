@@ -258,6 +258,7 @@ export function Developers() {
         loading={loading}
         getRowKey={(dev) => dev.id}
         onRowClick={handleRowClick}
+        pagination={{ itemsPerPage: 25, showPagination: true }}
         emptyState={{
           icon: "👥",
           title: search || statusFilter !== "all" ? "No developers found" : "No developers yet",
