@@ -63,6 +63,33 @@ pub struct MonthlyKPI {
     pub generated_at: String,
 }
 
+impl Default for MonthlyKPI {
+    fn default() -> Self {
+        MonthlyKPI {
+            id: String::new(),
+            developer_id: String::new(),
+            month: 1,
+            year: 2024,
+            total_tickets: 0,
+            completed_tickets: 0,
+            on_time_tickets: 0,
+            late_tickets: 0,
+            reopened_tickets: 0,
+            on_time_rate: 100.0,
+            avg_delivery_time: 0.0,
+            total_bugs: 0,
+            developer_error_bugs: 0,
+            conceptual_bugs: 0,
+            other_bugs: 0,
+            delivery_score: 100.0,
+            quality_score: 100.0,
+            overall_score: 100.0,
+            trend: None,
+            generated_at: chrono::Utc::now().to_rfc3339(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct KPIConfig {

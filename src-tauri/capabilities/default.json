@@ -5,6 +5,14 @@
   "windows": ["main"],
   "permissions": [
     "core:default",
-    "opener:default"
+    "opener:default",
+    "dialog:default",
+    "dialog:allow-save",
+    "fs:default",
+    "fs:allow-write-file",
+    "fs:allow-write-text-file",
+    "fs:scope-download",
+    "fs:scope-document",
+    "fs:scope-desktop"
   ]
 }

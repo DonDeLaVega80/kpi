@@ -314,9 +314,9 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 7.5 Export Functionality
 
-- [ ] Create `ExportButton` component
-- [ ] Export to CSV (implement in Rust)
-- [ ] Export to PDF (use browser print or pdf library)
+- [x] Create `ExportButton` component
+- [x] Export to CSV (implement in Rust)
+- [x] Export to PDF (use browser print or pdf library)
 
 **Deliverable:** Visual reports with charts and export
 

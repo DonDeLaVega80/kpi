@@ -128,3 +128,15 @@ export async function getCurrentMonthKPI(
 ): Promise<MonthlyKPI> {
   return invoke("get_current_month_kpi", { developerId });
 }
+
+export async function exportMonthlyKPIAsCSV(
+  developerId: string | null,
+  month: number,
+  year: number
+): Promise<string> {
+  return invoke("export_monthly_kpi_csv", {
+    developerId: developerId || null,
+    month,
+    year,
+  });
+}

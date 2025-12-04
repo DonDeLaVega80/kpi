@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { MonthlyReport } from "@/components/reports";
+import { MonthlyReport, ExportButton } from "@/components/reports";
 import type { MonthlyKPI } from "@/types";
 
 // Get current month/year
@@ -281,18 +281,31 @@ export function Reports() {
                     : "Real-time preview"}
                 </p>
               </div>
-              {displayKPI.trend && (
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">
-                    {displayKPI.trend === "improving" && "📈"}
-                    {displayKPI.trend === "stable" && "➡️"}
-                    {displayKPI.trend === "declining" && "📉"}
-                  </span>
-                  <span className="text-sm font-medium capitalize">
-                    {displayKPI.trend}
-                  </span>
-                </div>
-              )}
+              <div className="flex items-center gap-4">
+                {displayKPI.trend && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">
+                      {displayKPI.trend === "improving" && "📈"}
+                      {displayKPI.trend === "stable" && "➡️"}
+                      {displayKPI.trend === "declining" && "📉"}
+                    </span>
+                    <span className="text-sm font-medium capitalize">
+                      {displayKPI.trend}
+                    </span>
+                  </div>
+                )}
+                <ExportButton
+                  kpi={displayKPI}
+                  developerName={
+                    selectedDeveloperId === "all"
+                      ? "Team"
+                      : activeDevelopers.find((d) => d.id === selectedDeveloperId)
+                          ?.name || "Developer"
+                  }
+                  month={selectedMonth}
+                  year={selectedYear}
+                />
+              </div>
             </div>
 
             {/* Summary Cards */}

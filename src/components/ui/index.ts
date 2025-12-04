@@ -4,6 +4,7 @@ export * from "./input";
 export * from "./label";
 export * from "./select";
 export * from "./dialog";
+export * from "./dropdown-menu";
 export * from "./badge";
 export * from "./table";
 export * from "./card";
