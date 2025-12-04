@@ -37,3 +37,6 @@ thiserror = "1"
 
 # Async runtime (for potential future use)
 tokio = { version = "1", features = ["sync"] }
+
+# Cross-platform directory paths
+dirs = "5"

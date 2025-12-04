@@ -7,10 +7,34 @@ use crate::db::migrations::run_migrations;
 
 /// Get the application data directory
 pub fn get_app_data_dir() -> PathBuf {
-    let home = dirs::home_dir().expect("Could not find home directory");
-    home.join("Library")
-        .join("Application Support")
-        .join("kpi-tool")
+    #[cfg(target_os = "macos")]
+    {
+        let home = dirs::home_dir().expect("Could not find home directory");
+        home.join("Library")
+            .join("Application Support")
+            .join("kpi-tool")
+    }
+    #[cfg(target_os = "linux")]
+    {
+        // Linux: ~/.local/share/kpi-tool/
+        dirs::data_local_dir()
+            .expect("Could not find data directory")
+            .join("kpi-tool")
+    }
+    #[cfg(target_os = "windows")]
+    {
+        // Windows: %APPDATA%\kpi-tool\
+        dirs::data_dir()
+            .expect("Could not find data directory")
+            .join("kpi-tool")
+    }
+    #[cfg(not(any(target_os = "macos", target_os = "linux", target_os = "windows")))]
+    {
+        // Fallback for other platforms
+        dirs::home_dir()
+            .expect("Could not find home directory")
+            .join(".kpi-tool")
+    }
 }
 
 /// Get the database file path
@@ -85,12 +109,4 @@ impl DbState {
     }
 }
 
-// Add dirs crate for home directory
-mod dirs {
-    use std::path::PathBuf;
-
-    pub fn home_dir() -> Option<PathBuf> {
-        std::env::var_os("HOME").map(PathBuf::from)
-    }
-}
 

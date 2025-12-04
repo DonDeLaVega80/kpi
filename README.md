@@ -123,24 +123,63 @@ The system automatically:
 
 ### For Users
 
-1. Download the `.dmg` file from [Releases](releases) or use the built DMG at:
-   ```
-   src-tauri/target/release/bundle/dmg/KPI Tool_0.1.0_aarch64.dmg
-   ```
+#### macOS
+1. Download the `.dmg` file from [Releases](releases)
 2. Open the DMG file
 3. Drag "KPI Tool" to your Applications folder
 4. Launch from Applications
 
-**Note**: The app is built for Apple Silicon (ARM64). For Intel Macs, rebuild from source.
+#### Ubuntu/Linux
+1. Download the `.AppImage` or `.deb` file from [Releases](releases)
+2. **For AppImage**: Make it executable and run:
+   ```bash
+   chmod +x kpi-tool_*.AppImage
+   ./kpi-tool_*.AppImage
+   ```
+3. **For .deb package**: Install with:
+   ```bash
+   sudo dpkg -i kpi-tool_*.deb
+   sudo apt-get install -f  # Fix dependencies if needed
+   ```
+
+#### Windows
+1. Download the `.msi` installer from [Releases](releases)
+2. Run the installer
+3. Launch from Start Menu or Desktop shortcut
 
 ### For Developers
 
-```bash
-# Prerequisites
-# - Node.js 18+
-# - Rust (latest stable)
-# - Xcode Command Line Tools (macOS)
+#### Prerequisites
 
+**All Platforms:**
+- Node.js 18+
+- Rust (latest stable) - Install from [rustup.rs](https://rustup.rs/)
+
+**macOS:**
+- Xcode Command Line Tools: `xcode-select --install`
+
+**Ubuntu/Linux:**
+```bash
+sudo apt update
+sudo apt install -y \
+  libwebkit2gtk-4.1-dev \
+  build-essential \
+  curl \
+  wget \
+  file \
+  libssl-dev \
+  libgtk-3-dev \
+  libayatana-appindicator3-dev \
+  librsvg2-dev
+```
+
+**Windows:**
+- Microsoft Visual Studio C++ Build Tools
+- WebView2 (usually pre-installed on Windows 10/11)
+
+#### Build Instructions
+
+```bash
 # Clone the repository
 git clone https://github.com/yourusername/kpi-tool.git
 cd kpi-tool
@@ -151,9 +190,29 @@ npm install
 # Run in development mode
 npm run tauri dev
 
-# Build for production
+# Build for production (current platform)
 npm run tauri build
+
+# Build for specific platform
+npm run tauri build -- --target x86_64-unknown-linux-gnu  # Linux
+npm run tauri build -- --target x86_64-pc-windows-msvc    # Windows
+npm run tauri build -- --target aarch64-apple-darwin      # macOS ARM64
+npm run tauri build -- --target x86_64-apple-darwin       # macOS Intel
 ```
+
+#### Build Outputs
+
+**macOS:**
+- DMG: `src-tauri/target/release/bundle/dmg/KPI Tool_0.1.0_*.dmg`
+- App Bundle: `src-tauri/target/release/bundle/macos/KPI Tool.app`
+
+**Ubuntu/Linux:**
+- AppImage: `src-tauri/target/release/bundle/appimage/kpi-tool_0.1.0_*.AppImage`
+- Debian: `src-tauri/target/release/bundle/deb/kpi-tool_0.1.0_*.deb`
+
+**Windows:**
+- MSI: `src-tauri/target/release/bundle/msi/KPI Tool_0.1.0_*.msi`
+- EXE: `src-tauri/target/release/bundle/nsis/KPI Tool_0.1.0_*.exe`
 
 ## Project Structure
 
@@ -350,8 +409,25 @@ The application is optimized for performance:
 
 Your data is stored locally at:
 
+**macOS:**
 ```
 ~/Library/Application Support/kpi-tool/
+├── kpi.db          # SQLite database
+├── config.json     # KPI configuration (weights, bug penalties)
+└── backups/        # Manual database backups (timestamped)
+```
+
+**Ubuntu/Linux:**
+```
+~/.local/share/kpi-tool/
+├── kpi.db          # SQLite database
+├── config.json     # KPI configuration (weights, bug penalties)
+└── backups/        # Manual database backups (timestamped)
+```
+
+**Windows:**
+```
+%APPDATA%\kpi-tool\
 ├── kpi.db          # SQLite database
 ├── config.json     # KPI configuration (weights, bug penalties)
 └── backups/        # Manual database backups (timestamped)
@@ -360,16 +436,36 @@ Your data is stored locally at:
 ## Release Information
 
 **Current Version**: 0.1.0  
-**Platform**: macOS (Apple Silicon / ARM64)  
+**Supported Platforms**: macOS, Ubuntu/Linux, Windows  
 **Build Date**: December 2024
 
 ### Download
 
-The latest release DMG can be found at:
-- GitHub Releases (when published)
-- Or build from source: `npm run tauri build`
+Pre-built binaries are available for:
+- **macOS**: `.dmg` installer (Apple Silicon and Intel)
+- **Ubuntu/Linux**: `.AppImage` (portable) or `.deb` (system package)
+- **Windows**: `.msi` installer
+
+Download from [GitHub Releases](releases) or build from source using the instructions above.
 
 See [RELEASE_NOTES.md](RELEASE_NOTES.md) for detailed release information and [RELEASE.md](RELEASE.md) for distribution instructions.
+
+### Building for Multiple Platforms
+
+To build for all platforms, you'll need to:
+
+1. **Build on each platform** (recommended):
+   - macOS: Build on macOS
+   - Linux: Build on Ubuntu/Linux
+   - Windows: Build on Windows
+
+2. **Or use CI/CD** (GitHub Actions):
+   - Set up workflows to build on each platform automatically
+   - See Tauri documentation for GitHub Actions examples
+
+3. **Cross-compilation** (advanced):
+   - Possible but complex due to system library dependencies
+   - Requires setting up cross-compilation toolchains
 
 ## License
 
