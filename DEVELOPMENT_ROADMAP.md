@@ -228,21 +228,22 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 6.1 KPI Calculator Service (Rust)
 
-- [ ] Create `kpi_calculator.rs` service
-- [ ] Implement `calculate_delivery_score`:
+- [x] Create `kpi_calculator.rs` service
+- [x] Implement `calculate_delivery_score`:
   - Base: (on_time / completed) \* 100
-  - Bonus for early deliveries
-  - Penalty for late critical tickets
-  - Penalty for reopened tickets
-- [ ] Implement `calculate_quality_score`:
+  - Bonus for early deliveries (+5 per early delivery)
+  - Penalty for late critical tickets (-10 per ticket)
+  - Penalty for reopened tickets (-5 per ticket)
+- [x] Implement `calculate_quality_score`:
   - Start at 100
-  - Deduct based on developer_error bugs (by severity)
-  - Minor deduction for conceptual bugs
+  - Deduct based on developer_error bugs (by severity: -15/-10/-5/-2)
+  - Minor deduction for conceptual bugs (-3 per bug)
   - No deduction for other types
-- [ ] Implement `calculate_overall_score`:
-  - Weighted average (configurable)
-- [ ] Implement `calculate_trend`:
-  - Compare with 3-month average
+- [x] Implement `calculate_overall_score`:
+  - Weighted average (configurable, default 50/50)
+- [x] Implement `calculate_trend`:
+  - Compare with 3-month average (±5 threshold)
+- [x] Unit tests for all functions (13 tests passing)
 
 ### 6.2 Monthly KPI Generation
 
