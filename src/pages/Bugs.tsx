@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BugFormDialog } from "@/components/bugs";
+import { BugFormDialog, BugCard } from "@/components/bugs";
 import type { Bug, BugSeverity, BugType, CreateBugInput, UpdateBugInput } from "@/types";
 
 // Helper to format date for display
@@ -62,7 +62,7 @@ export function Bugs() {
   const developerIdFromUrl = searchParams.get("developer") || undefined;
 
   // Fetch bugs based on URL params
-  const { bugs, loading, error, refresh, createBug, updateBug } = useBugs({
+  const { bugs, loading, error, refresh, createBug, updateBug, resolveBug } = useBugs({
     ticketId: ticketIdFromUrl,
     developerId: developerIdFromUrl,
   });
@@ -79,6 +79,16 @@ export function Bugs() {
   // Form state
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingBug, setEditingBug] = useState<Bug | undefined>();
+  
+  // Card state (for viewing bug details)
+  const [selectedBug, setSelectedBug] = useState<Bug | undefined>();
+  const [isCardOpen, setIsCardOpen] = useState(false);
+
+  // Get ticket by ID
+  const getTicket = (ticketId: string) => tickets.find((t) => t.id === ticketId);
+  
+  // Get developer by ID
+  const getDeveloper = (developerId: string) => developers.find((d) => d.id === developerId);
 
   // Get ticket title by ID
   const getTicketTitle = (ticketId: string): string => {
@@ -251,6 +261,42 @@ export function Bugs() {
     }
   };
 
+  const handleRowClick = (bug: Bug) => {
+    setSelectedBug(bug);
+    setIsCardOpen(true);
+  };
+
+  const handleCardClose = (open: boolean) => {
+    setIsCardOpen(open);
+    if (!open) {
+      setSelectedBug(undefined);
+    }
+  };
+
+  const handleResolve = async () => {
+    if (!selectedBug) return;
+    await resolveBug(selectedBug.id);
+    setIsCardOpen(false);
+    setSelectedBug(undefined);
+  };
+
+  const handleReclassify = async (bugType: BugType) => {
+    if (!selectedBug) return;
+    await updateBug({
+      id: selectedBug.id,
+      bugType,
+    });
+    // Update the selected bug in state to reflect the change
+    setSelectedBug((prev) => prev ? { ...prev, bugType } : undefined);
+  };
+
+  const handleEditFromCard = () => {
+    if (!selectedBug) return;
+    setIsCardOpen(false);
+    setEditingBug(selectedBug);
+    setIsFormOpen(true);
+  };
+
   if (error) {
     return (
       <div className="space-y-6">
@@ -419,6 +465,7 @@ export function Bugs() {
         columns={columns}
         loading={loading}
         getRowKey={(bug) => bug.id}
+        onRowClick={handleRowClick}
         emptyState={{
           icon: "🐛",
           title: search || severityFilter !== "all" || typeFilter !== "all" || resolvedFilter !== "all"
@@ -443,6 +490,20 @@ export function Bugs() {
         tickets={tickets}
         preselectedTicketId={ticketIdFromUrl}
       />
+
+      {/* Bug Card (Detail View) */}
+      {selectedBug && (
+        <BugCard
+          bug={selectedBug}
+          ticket={getTicket(selectedBug.ticketId)}
+          developer={getDeveloper(selectedBug.developerId)}
+          open={isCardOpen}
+          onOpenChange={handleCardClose}
+          onEdit={handleEditFromCard}
+          onResolve={handleResolve}
+          onReclassify={handleReclassify}
+        />
+      )}
     </div>
   );
 }

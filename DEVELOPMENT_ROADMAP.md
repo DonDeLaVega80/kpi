@@ -211,10 +211,12 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 5.3 Bug Classification UI
 
-- [ ] Create `BugClassification` component
-- [ ] Visual guide for choosing bug type
-- [ ] Help text explaining each type
-- [ ] Impact on KPI shown
+- [x] Create `BugCard` component with detail view
+- [x] Visual guide for choosing bug type (reclassify dialog)
+- [x] Help text explaining each type
+- [x] Impact on KPI shown
+- [x] Resolve action with confirmation
+- [x] Reclassify bug type action
 
 **Deliverable:** Complete bug tracking with classification
 
