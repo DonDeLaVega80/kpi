@@ -10,31 +10,31 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 0.1 Initialize Tauri Project
 
-- [ ] Install prerequisites (Node.js 18+, Rust, Xcode CLI tools)
-- [ ] Create new Tauri project: `npm create tauri-app@latest kpi-tool`
-- [ ] Select React + TypeScript template
-- [ ] Verify setup with `npm run tauri dev`
+- [x] Install prerequisites (Node.js 18+, Rust, Xcode CLI tools)
+- [x] Create new Tauri project: `npm create tauri-app@latest kpi-tool`
+- [x] Select React + TypeScript template
+- [x] Verify setup with `npm run tauri dev`
 
 ### 0.2 Configure Frontend Tooling
 
-- [ ] Install Tailwind CSS
-- [ ] Install and configure shadcn/ui
-- [ ] Set up path aliases in `tsconfig.json`
-- [ ] Create base folder structure (`components/`, `pages/`, `hooks/`, `types/`, `lib/`)
+- [x] Install Tailwind CSS
+- [x] Install and configure shadcn/ui
+- [x] Set up path aliases in `tsconfig.json`
+- [x] Create base folder structure (`components/`, `pages/`, `hooks/`, `types/`, `lib/`)
 
 ### 0.3 Configure Rust Backend
 
-- [ ] Add SQLite dependencies to `Cargo.toml` (rusqlite or sqlx)
-- [ ] Add serde for JSON serialization
-- [ ] Add uuid for ID generation
-- [ ] Create base folder structure (`commands/`, `db/`, `models/`, `services/`)
+- [x] Add SQLite dependencies to `Cargo.toml` (rusqlite or sqlx)
+- [x] Add serde for JSON serialization
+- [x] Add uuid for ID generation
+- [x] Create base folder structure (`commands/`, `db/`, `models/`, `services/`)
 
 ### 0.4 Database Setup
 
-- [ ] Create database initialization function
-- [ ] Set up migrations system
-- [ ] Configure app data directory (`~/Library/Application Support/kpi-tool/`)
-- [ ] Write initial migration (create all tables)
+- [x] Create database initialization function
+- [x] Set up migrations system
+- [x] Configure app data directory (`~/Library/Application Support/kpi-tool/`)
+- [x] Write initial migration (create all tables)
 
 **Deliverable:** Empty app launches, database file created on first run
 
