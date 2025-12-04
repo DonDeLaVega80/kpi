@@ -50,7 +50,6 @@ export function Sidebar() {
       <div className="border-t border-border p-4">
         <div className="text-xs text-muted-foreground">
           <p>KPI Tool v0.1.0</p>
-          <p className="mt-1">Phase 9 - Settings</p>
         </div>
       </div>
     </aside>

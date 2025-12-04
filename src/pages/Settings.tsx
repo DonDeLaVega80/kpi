@@ -65,7 +65,7 @@ function ClearDataButtonComponent() {
 }
 
 export function Settings() {
-  const [kpiConfig, setKpiConfig] = useState<KPIConfig | null>(null);
+  const [_kpiConfig, setKpiConfig] = useState<KPIConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -490,8 +490,6 @@ export function Settings() {
           <div className="pl-14">
             <p className="text-sm text-muted-foreground">
               Configure date formats and other application preferences.
-              <br />
-              <span className="text-xs italic">Coming in Phase 9.4</span>
             </p>
           </div>
         </Card>

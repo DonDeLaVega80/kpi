@@ -6,7 +6,7 @@ A standalone desktop application for tracking developer performance through tick
 
 ## 🚧 Development Status
 
-**Phase 10 Complete** - Polish & Testing with error handling, loading states, edge case handling, and performance optimizations fully implemented.
+**Phase 11 Complete** - Build & Distribution complete. The application is ready for release with standalone macOS build and distribution package.
 
 ### Completed
 
@@ -57,10 +57,13 @@ A standalone desktop application for tracking developer performance through tick
 - ✅ Loading States (skeleton loaders, loading indicators, disabled buttons during operations)
 - ✅ Edge Cases (empty states, first-time setup welcome screen, corrupted database handling)
 - ✅ Performance Optimizations (pagination, lazy loading, database query optimization)
+- ✅ App Metadata (version, bundle identifier, icons)
+- ✅ macOS Build (DMG installer created)
+- ✅ Release Documentation (release notes and distribution guide)
 
-### Next Up
+### Status
 
-- 🔲 Phase 11: Build & Distribution - See [Development Roadmap](DEVELOPMENT_ROADMAP.md)
+**✅ Ready for Release** - Version 0.1.0 is complete and ready for distribution. See [RELEASE_NOTES.md](RELEASE_NOTES.md) for details.
 
 ## Features
 
@@ -120,7 +123,15 @@ The system automatically:
 
 ### For Users
 
-Download the `.dmg` file from [Releases](releases), open it, and drag the app to your Applications folder. That's it!
+1. Download the `.dmg` file from [Releases](releases) or use the built DMG at:
+   ```
+   src-tauri/target/release/bundle/dmg/KPI Tool_0.1.0_aarch64.dmg
+   ```
+2. Open the DMG file
+3. Drag "KPI Tool" to your Applications folder
+4. Launch from Applications
+
+**Note**: The app is built for Apple Silicon (ARM64). For Intel Macs, rebuild from source.
 
 ### For Developers
 
@@ -173,6 +184,8 @@ kpi/
 
 - [Architecture](ARCHITECTURE.md) - Technical design and data models
 - [Development Roadmap](DEVELOPMENT_ROADMAP.md) - Step-by-step build guide
+- [Release Notes](RELEASE_NOTES.md) - Version 0.1.0 release information
+- [Release Guide](RELEASE.md) - Distribution and release instructions
 
 ## How KPI is Calculated
 
@@ -343,6 +356,20 @@ Your data is stored locally at:
 ├── config.json     # KPI configuration (weights, bug penalties)
 └── backups/        # Manual database backups (timestamped)
 ```
+
+## Release Information
+
+**Current Version**: 0.1.0  
+**Platform**: macOS (Apple Silicon / ARM64)  
+**Build Date**: December 2024
+
+### Download
+
+The latest release DMG can be found at:
+- GitHub Releases (when published)
+- Or build from source: `npm run tauri build`
+
+See [RELEASE_NOTES.md](RELEASE_NOTES.md) for detailed release information and [RELEASE.md](RELEASE.md) for distribution instructions.
 
 ## License
 

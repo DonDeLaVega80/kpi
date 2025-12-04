@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from "react";
+import { Component, ErrorInfo, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle } from "lucide-react";
@@ -80,7 +80,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 </div>
               )}
 
-              {process.env.NODE_ENV === "development" && this.state.errorInfo && (
+              {import.meta.env.DEV && this.state.errorInfo && (
                 <details className="rounded-lg border p-4">
                   <summary className="cursor-pointer text-sm font-medium">
                     Stack Trace (Development Only)

@@ -10,7 +10,7 @@ import { BugFormDialog } from "@/components/bugs";
 import { Button } from "@/components/ui/button";
 import { WelcomeScreen } from "@/components/ui/welcome-screen";
 import type { MonthlyKPI } from "@/types";
-import type { CreateTicketInput, CreateBugInput } from "@/types";
+import type { CreateTicketInput, CreateBugInput, UpdateTicketInput, UpdateBugInput } from "@/types";
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -52,9 +52,9 @@ export function Dashboard() {
   const unresolvedBugs = bugs.filter((b) => !b.isResolved);
 
   // Handlers for quick actions
-  const handleCreateTicket = async (data: CreateTicketInput) => {
+  const handleCreateTicket = async (data: CreateTicketInput | UpdateTicketInput) => {
     try {
-      await createTicket(data);
+      await createTicket(data as CreateTicketInput);
       setIsTicketFormOpen(false);
     } catch (error) {
       console.error("Failed to create ticket:", error);
@@ -62,9 +62,9 @@ export function Dashboard() {
     }
   };
 
-  const handleCreateBug = async (data: CreateBugInput) => {
+  const handleCreateBug = async (data: CreateBugInput | UpdateBugInput) => {
     try {
-      await createBug(data);
+      await createBug(data as CreateBugInput);
       setIsBugFormOpen(false);
     } catch (error) {
       console.error("Failed to create bug:", error);

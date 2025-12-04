@@ -421,16 +421,16 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 11.1 App Metadata
 
-- [ ] Set app name, version in `tauri.conf.json`
-- [ ] Create app icon (multiple sizes)
-- [ ] Set bundle identifier
+- [x] Set app name, version in `tauri.conf.json`
+- [x] Create app icon (multiple sizes)
+- [x] Set bundle identifier
 
 ### 11.2 macOS Build
 
-- [ ] Run `npm run tauri build`
-- [ ] Test `.dmg` installer
-- [ ] Test app in Applications folder
-- [ ] Verify database location
+- [x] Run `npm run tauri build`
+- [x] Test `.dmg` installer
+- [x] Test app in Applications folder
+- [x] Verify database location
 
 ### 11.3 Code Signing (Optional)
 
@@ -440,9 +440,9 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 11.4 Release
 
-- [ ] Create GitHub release
-- [ ] Upload `.dmg` artifact
-- [ ] Write release notes
+- [x] Create GitHub release
+- [x] Upload `.dmg` artifact
+- [x] Write release notes
 
 **Deliverable:** Distributable macOS application
 
