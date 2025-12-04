@@ -26,6 +26,7 @@ export * from "./text-field";
 
 // Chart components
 export * from "./trend-chart";
+export * from "./mini-trend-chart";
 export * from "./bug-pie-chart";
 export * from "./ticket-bar-chart";
 

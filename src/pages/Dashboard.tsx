@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDevelopers } from "@/hooks/useDevelopers";
 import { useTickets } from "@/hooks/useTickets";
 import { useBugs } from "@/hooks/useBugs";
-import { getCurrentMonthKPI } from "@/lib/tauri";
+import { getCurrentMonthKPI, getKPIHistory } from "@/lib/tauri";
+import { MiniTrendChart } from "@/components/ui/mini-trend-chart";
 import type { MonthlyKPI } from "@/types";
 
 export function Dashboard() {
@@ -13,7 +14,9 @@ export function Dashboard() {
   const { bugs, loading: loadingBugs } = useBugs();
 
   const [kpiScores, setKpiScores] = useState<MonthlyKPI[]>([]);
+  const [kpiHistory, setKpiHistory] = useState<MonthlyKPI[]>([]);
   const [loadingKPI, setLoadingKPI] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const [kpiError, setKpiError] = useState<string | null>(null);
 
   const activeDevelopers = developers.filter((d) => d.isActive);
@@ -62,6 +65,43 @@ export function Dashboard() {
     }
   }, [activeDevelopers.length, loadingDevs]);
 
+  // Fetch KPI history for trend chart
+  useEffect(() => {
+    const fetchHistory = async () => {
+      if (activeDevelopers.length === 0) {
+        setKpiHistory([]);
+        return;
+      }
+
+      setLoadingHistory(true);
+      try {
+        const allHistory = await Promise.all(
+          activeDevelopers.map(async (dev) => {
+            try {
+              return await getKPIHistory(dev.id);
+            } catch (err) {
+              console.error(`Failed to fetch history for ${dev.name}:`, err);
+              return [];
+            }
+          })
+        );
+
+        // Flatten and combine all history
+        const combined = allHistory.flat();
+        setKpiHistory(combined);
+      } catch (err) {
+        console.error("Failed to fetch KPI history:", err);
+        setKpiHistory([]);
+      } finally {
+        setLoadingHistory(false);
+      }
+    };
+
+    if (!loadingDevs && activeDevelopers.length > 0) {
+      fetchHistory();
+    }
+  }, [activeDevelopers.length, loadingDevs]);
+
   // Calculate average score
   const avgScore =
     kpiScores.length > 0
@@ -93,6 +133,61 @@ export function Dashboard() {
     const dueDate = new Date(t.dueDate);
     return dueDate < now;
   });
+
+  // Prepare trend data for mini chart (last 6 months, team average)
+  const trendData = useMemo(() => {
+    if (kpiHistory.length === 0) return [];
+
+    // Group by month/year and calculate averages
+    const monthMap = new Map<string, { total: number; count: number }>();
+
+    kpiHistory.forEach((kpi) => {
+      const key = `${kpi.year}-${kpi.month.toString().padStart(2, "0")}`;
+      const existing = monthMap.get(key) || { total: 0, count: 0 };
+      monthMap.set(key, {
+        total: existing.total + kpi.overallScore,
+        count: existing.count + 1,
+      });
+    });
+
+    // Convert to array and sort by date
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    const sorted = Array.from(monthMap.entries())
+      .map(([key, data]) => {
+        const [year, month] = key.split("-");
+        return {
+          key,
+          year: parseInt(year, 10),
+          month: parseInt(month, 10),
+          avg: data.total / data.count,
+        };
+      })
+      .sort((a, b) => {
+        if (a.year !== b.year) return a.year - b.year;
+        return a.month - b.month;
+      })
+      .slice(-6) // Last 6 months
+      .map((item) => ({
+        month: `${months[item.month - 1]} ${item.year}`,
+        overall: item.avg,
+      }));
+
+    return sorted;
+  }, [kpiHistory]);
 
   return (
     <div className="space-y-6">
@@ -345,6 +440,29 @@ export function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Monthly Trend Chart Widget - Full width */}
+      <div className="rounded-xl border bg-card p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">Monthly Trend</h2>
+            <p className="text-sm text-muted-foreground">
+              Team average overall score over the last 6 months
+            </p>
+          </div>
+        </div>
+        {loadingHistory ? (
+          <div className="flex items-center justify-center py-12">
+            <p className="text-muted-foreground">Loading trend data...</p>
+          </div>
+        ) : trendData.length > 0 ? (
+          <MiniTrendChart data={trendData} height={200} />
+        ) : (
+          <div className="flex items-center justify-center py-12 text-muted-foreground">
+            <p>No historical data available. Generate monthly reports to see trends.</p>
+          </div>
+        )}
+      </div>
 
       {/* Main Content Grid - 2 columns */}
       <div className="grid gap-6 lg:grid-cols-3">
