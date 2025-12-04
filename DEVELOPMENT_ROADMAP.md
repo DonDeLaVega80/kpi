@@ -107,10 +107,10 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 2.3 Form Components
 
-- [ ] Create reusable `FormField` wrapper
-- [ ] Create `DatePicker` component
-- [ ] Create `SelectField` component (for dropdowns)
-- [ ] Set up form validation (react-hook-form + zod)
+- [x] Create reusable `FormField` wrapper
+- [x] Create `DatePicker` component
+- [x] Create `SelectField` component (for dropdowns)
+- [x] Set up form validation (react-hook-form + zod)
 
 **Deliverable:** App shell with navigation, consistent styling
 
