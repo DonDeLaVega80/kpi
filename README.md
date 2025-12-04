@@ -4,7 +4,7 @@ A standalone desktop application for tracking developer performance through tick
 
 ## 🚧 Development Status
 
-**Phase 6 Complete** - KPI Calculation Engine fully implemented with real-time dashboard display.
+**Phase 7 Complete** - Reports & Visualization with export functionality fully implemented.
 
 ### Completed
 - ✅ Tauri + React + TypeScript project initialized
@@ -38,10 +38,15 @@ A standalone desktop application for tracking developer performance through tick
 - ✅ Monthly KPI generation and storage
 - ✅ Real-time KPI preview (current month)
 - ✅ Dashboard with team KPI summary and averages
+- ✅ Reports page with month/year/developer selectors
+- ✅ Monthly report component with charts (ticket breakdown, bug breakdown, trend)
+- ✅ Developer KPI deep-dive view with historical performance
+- ✅ Export functionality (CSV and PDF/HTML export)
+- ✅ Chart library integration (recharts) with custom chart components
 
 ### Next Up
-- 🔲 Phase 7: Reports & Visualization (detailed KPI reports UI)
-- 🔲 Phase 8-11: See [Development Roadmap](DEVELOPMENT_ROADMAP.md)
+- 🔲 Phase 8: Dashboard enhancements
+- 🔲 Phase 9-11: See [Development Roadmap](DEVELOPMENT_ROADMAP.md)
 
 ## Features
 
@@ -51,8 +56,10 @@ A standalone desktop application for tracking developer performance through tick
 - **Bug Resolution Workflow** - Track who fixed bugs and link to fix tickets
 - **KPI Calculation** - Automatic calculation of delivery, quality, and overall scores
 - **Real-time Dashboard** - View team performance metrics and averages
-- **Monthly KPI Reports** - Generate and store monthly performance snapshots
-- **Trend Analysis** - Track improvement or decline over time (coming soon)
+- **Monthly KPI Reports** - Generate and store monthly performance snapshots with detailed charts
+- **Trend Analysis** - Track improvement or decline over time with visual trend charts
+- **Export Reports** - Export KPI reports as CSV or HTML (for PDF printing)
+- **Developer KPI Deep-Dive** - Individual developer performance analysis with historical trends
 
 ## Bug Tracking & KPI
 
@@ -126,7 +133,8 @@ kpi/
 │   │   ├── layout/           # MainLayout, Sidebar, Header
 │   │   ├── developers/       # DeveloperFormDialog, DeveloperCard
 │   │   ├── tickets/          # TicketFormDialog, TicketCard, TicketTimeline
-│   │   └── bugs/             # BugFormDialog, BugCard
+│   │   ├── bugs/             # BugFormDialog, BugCard
+│   │   └── reports/          # MonthlyReport, DeveloperKPI, ExportButton
 │   ├── pages/                # Dashboard, Developers, Tickets, Bugs, Reports
 │   ├── hooks/                # useDevelopers, useTickets, useBugs, useKPI
 │   ├── types/                # TypeScript interfaces
@@ -176,6 +184,28 @@ The Dashboard provides real-time insights:
 - **Average Scores**: Overall, delivery, and quality scores across the team
 - **Team KPI Summary**: Individual developer scores with trend indicators
 - **Recent Activity**: Latest completed tickets and reported bugs
+
+## Reports & Export
+
+### Monthly Reports
+Generate detailed KPI reports for any developer or the entire team:
+- **Summary Cards**: Delivery, Quality, and Overall scores
+- **Ticket Breakdown**: Bar chart showing completed, on-time, late, and reopened tickets
+- **Bug Breakdown**: Pie chart showing bug types (Developer Error, Conceptual, Other)
+- **Performance Trend**: Line chart showing score progression over the last 6 months
+- **Detailed Metrics**: Comprehensive breakdown of all ticket and bug metrics
+
+### Developer KPI Deep-Dive
+View individual developer performance:
+- **Average Scores**: Historical averages across all months
+- **Latest Month**: Current month performance snapshot
+- **Trend Chart**: Visual representation of performance over time
+- **Monthly Breakdown Table**: Detailed metrics for each month
+
+### Export Options
+- **CSV Export**: Download KPI data as a CSV file for analysis in Excel or other tools
+- **PDF Export**: Save reports as HTML files that can be opened in a browser and printed to PDF
+- **Native File Dialogs**: Uses system file dialogs for seamless file saving
 
 ## Data Storage
 

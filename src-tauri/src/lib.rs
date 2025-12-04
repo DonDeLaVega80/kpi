@@ -13,6 +13,8 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_fs::init())
         .manage(db_state)
         .invoke_handler(tauri::generate_handler![
             // Developer commands
@@ -40,6 +42,7 @@ pub fn run() {
             generate_monthly_kpi,
             get_kpi_history,
             get_current_month_kpi,
+            export_monthly_kpi_csv,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

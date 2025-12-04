@@ -274,36 +274,49 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 7.1 Install Chart Library
 
-- [ ] Install recharts or chart.js
-- [ ] Create chart wrapper components
+- [x] Install recharts library
+- [x] Create chart wrapper components:
+  - `TrendChart` - Line chart for KPI trends over time
+  - `BugPieChart` - Pie chart for bug type breakdown
+  - `TicketBarChart` - Bar chart for ticket metrics
 
 ### 7.2 Monthly Report Page
 
-- [ ] Create `Reports` page
-- [ ] Month/Year selector
-- [ ] Developer selector (or "All")
-- [ ] Generate report button
+- [x] Create `Reports` page
+- [x] Month/Year selector (dropdowns with current month/year default)
+- [x] Developer selector (dropdown with "All" option)
+- [x] Generate report button (calls `generateMonthlyKPI`)
+- [x] Display generated/stored KPI data
+- [x] Show summary cards (delivery, quality, overall scores)
+- [x] Show trend indicator
 
 ### 7.3 Report Components
 
-- [ ] Create `MonthlyReport` component
-- [ ] Summary cards: delivery score, quality score, overall
-- [ ] Ticket breakdown (completed, on-time, late, reopened)
-- [ ] Bug breakdown by type (pie chart)
-- [ ] Create `TrendChart` component (line chart over months)
+- [x] Create `MonthlyReport` component
+- [x] Summary cards: delivery score, quality score, overall (in Reports page)
+- [x] Ticket breakdown (completed, on-time, late, reopened) - Bar chart
+- [x] Bug breakdown by type (pie chart) - Shows developer errors, conceptual, other
+- [x] Trend chart component (line chart over months) - Shows last 6 months
+- [x] Additional metrics cards (delivery metrics, quality metrics)
+- [x] Integrated into Reports page
 
 ### 7.4 Developer KPI View
 
-- [ ] Create `DeveloperKPI` component
-- [ ] Individual developer deep-dive
-- [ ] Historical performance graph
-- [ ] Comparison with team average
+- [x] Create `DeveloperKPI` component
+- [x] Individual developer deep-dive:
+  - Average scores (delivery, quality, overall)
+  - Latest month performance metrics
+  - Performance insights and recommendations
+- [x] Historical performance graph (trend chart over last 12 months)
+- [x] Monthly breakdown table (last 12 months with detailed metrics)
+- [x] Integrated into DeveloperCard with tabbed view (Overview / KPI Report)
+- [ ] Comparison with team average (can be added later)
 
 ### 7.5 Export Functionality
 
-- [ ] Create `ExportButton` component
-- [ ] Export to CSV (implement in Rust)
-- [ ] Export to PDF (use browser print or pdf library)
+- [x] Create `ExportButton` component
+- [x] Export to CSV (implement in Rust)
+- [x] Export to PDF (use browser print or pdf library)
 
 **Deliverable:** Visual reports with charts and export
 
