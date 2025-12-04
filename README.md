@@ -1,10 +1,12 @@
 # KPI Tool
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A standalone desktop application for tracking developer performance through ticket management, bug tracking, and monthly KPI reporting.
 
 ## 🚧 Development Status
 
-**Phase 9 Complete** - Settings & Configuration with KPI customization and data management fully implemented.
+**Phase 10 Complete** - Polish & Testing with error handling, loading states, edge case handling, and performance optimizations fully implemented.
 
 ### Completed
 
@@ -51,11 +53,14 @@ A standalone desktop application for tracking developer performance through tick
 - ✅ Settings page with organized sections
 - ✅ KPI Configuration (delivery/quality weights, bug severity penalties)
 - ✅ Data Management (backup, restore, export, import, clear)
+- ✅ Error Handling (error boundaries, toast notifications, database error recovery)
+- ✅ Loading States (skeleton loaders, loading indicators, disabled buttons during operations)
+- ✅ Edge Cases (empty states, first-time setup welcome screen, corrupted database handling)
+- ✅ Performance Optimizations (pagination, lazy loading, database query optimization)
 
 ### Next Up
 
-- 🔲 Phase 10: Polish & Testing
-- 🔲 Phase 11: See [Development Roadmap](DEVELOPMENT_ROADMAP.md)
+- 🔲 Phase 11: Build & Distribution - See [Development Roadmap](DEVELOPMENT_ROADMAP.md)
 
 ## Features
 
@@ -69,6 +74,10 @@ A standalone desktop application for tracking developer performance through tick
 - **Trend Analysis** - Track improvement or decline over time with visual trend charts
 - **Export Reports** - Export KPI reports as CSV or HTML (for PDF printing)
 - **Developer KPI Deep-Dive** - Individual developer performance analysis with historical trends
+- **Error Handling** - Comprehensive error boundaries and user-friendly error messages
+- **Loading States** - Skeleton loaders and loading indicators for better UX
+- **Performance** - Pagination, lazy loading, and optimized database queries
+- **First-Time Setup** - Welcome screen for new users with onboarding guidance
 
 ## Bug Tracking & KPI
 
@@ -280,6 +289,50 @@ Comprehensive data management tools:
 
 - **Light Mode Only**: The application uses a clean light theme for optimal readability
 
+## Error Handling & User Experience
+
+### Error Boundaries
+
+The application includes React error boundaries to catch and display errors gracefully:
+
+- **UI Error Recovery**: Errors in components are caught and displayed with helpful messages
+- **Database Error Detection**: Automatic detection of database corruption with restore options
+- **User-Friendly Messages**: Clear error messages with actionable recovery steps
+
+### Loading States
+
+Enhanced user experience with comprehensive loading indicators:
+
+- **Skeleton Loaders**: Table and card skeleton loaders while data is loading
+- **Loading Spinners**: Visual feedback during data fetches and operations
+- **Disabled States**: Buttons are automatically disabled during operations to prevent duplicate actions
+
+### Edge Cases
+
+Robust handling of edge cases:
+
+- **Empty States**: Helpful empty state messages with action buttons when no data exists
+- **First-Time Setup**: Welcome screen with onboarding guidance for new users
+- **Database Corruption**: Automatic detection with options to restore from backup or start fresh
+- **Error Recovery**: Clear error messages with recovery paths for common issues
+
+## Performance
+
+### Optimizations
+
+The application is optimized for performance:
+
+- **Pagination**: Large lists automatically paginate (25 items per page by default, configurable)
+- **Lazy Loading**: Routes are code-split and loaded on demand, reducing initial bundle size
+- **Database Indexes**: Optimized database queries with proper indexes on frequently queried columns
+- **Memoization**: React hooks use memoization to prevent unnecessary re-renders
+
+### Database Performance
+
+- **Indexed Queries**: All common query patterns use indexed columns
+- **Prepared Statements**: All database queries use prepared statements for security and performance
+- **Efficient Aggregations**: KPI calculations use optimized SQL aggregations
+
 ## Data Storage
 
 Your data is stored locally at:
@@ -293,4 +346,6 @@ Your data is stored locally at:
 
 ## License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+Copyright (c) 2024 KPI Tool
