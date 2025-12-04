@@ -14,6 +14,7 @@ import {
   StatusBadge,
   ConfirmDialog,
 } from "@/components/ui";
+import { TicketTimeline } from "./TicketTimeline";
 import type { Ticket, TicketStatus, Developer } from "@/types";
 import { useBugs } from "@/hooks/useBugs";
 
@@ -36,17 +37,6 @@ const statusTransitions: Record<TicketStatus, TicketStatus[]> = {
   completed: [], // Can only reopen
   reopened: ["in_progress"],
 };
-
-// Helper to format date for display
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 // Helper to check if ticket is overdue
 function isOverdue(ticket: Ticket): boolean {
@@ -77,9 +67,7 @@ export function TicketCard({
   const { bugs } = useBugs({ ticketId: ticket.id });
   
   const [isCompleting, setIsCompleting] = useState(false);
-  const [actualHours, setActualHours] = useState<string>(
-    ticket.actualHours?.toString() || ticket.estimatedHours?.toString() || ""
-  );
+  const [actualHours, setActualHours] = useState<string>("");
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [showReopenDialog, setShowReopenDialog] = useState(false);
   const [isReopening, setIsReopening] = useState(false);
@@ -162,65 +150,38 @@ export function TicketCard({
             </div>
           )}
 
-          {/* Info Grid */}
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-muted-foreground">Developer:</span>
-              <p className="font-medium">{developer?.name || "Unknown"}</p>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Complexity:</span>
-              <div className="mt-1">
-                <StatusBadge
-                  status={ticket.complexity}
-                  variant={
-                    ticket.complexity === "critical"
-                      ? "error"
-                      : ticket.complexity === "high"
-                      ? "warning"
-                      : ticket.complexity === "medium"
-                      ? "info"
-                      : "default"
-                  }
-                />
-              </div>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Assigned:</span>
-              <p className="font-medium">{formatDate(ticket.assignedDate)}</p>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Due Date:</span>
-              <p className={`font-medium ${overdue ? "text-red-600 dark:text-red-400" : ""}`}>
-                {formatDate(ticket.dueDate)}
-              </p>
-            </div>
-            {ticket.completedDate && (
+          {/* Two-column layout: Info + Timeline */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Info Grid */}
+            <div className="space-y-3 text-sm">
               <div>
-                <span className="text-muted-foreground">Completed:</span>
-                <p className="font-medium">{formatDate(ticket.completedDate)}</p>
+                <span className="text-muted-foreground">Developer:</span>
+                <p className="font-medium">{developer?.name || "Unknown"}</p>
               </div>
-            )}
-            {ticket.estimatedHours && (
               <div>
-                <span className="text-muted-foreground">Estimated:</span>
-                <p className="font-medium">{ticket.estimatedHours}h</p>
+                <span className="text-muted-foreground">Complexity:</span>
+                <div className="mt-1">
+                  <StatusBadge
+                    status={ticket.complexity}
+                    variant={
+                      ticket.complexity === "critical"
+                        ? "error"
+                        : ticket.complexity === "high"
+                        ? "warning"
+                        : ticket.complexity === "medium"
+                        ? "info"
+                        : "default"
+                    }
+                  />
+                </div>
               </div>
-            )}
-            {ticket.actualHours && (
-              <div>
-                <span className="text-muted-foreground">Actual:</span>
-                <p className="font-medium">{ticket.actualHours}h</p>
-              </div>
-            )}
-            {ticket.reopenCount > 0 && (
-              <div>
-                <span className="text-muted-foreground">Reopened:</span>
-                <p className="font-medium text-red-600 dark:text-red-400">
-                  {ticket.reopenCount} time{ticket.reopenCount > 1 ? "s" : ""}
-                </p>
-              </div>
-            )}
+            </div>
+
+            {/* Timeline */}
+            <div className="bg-muted/30 rounded-lg p-4">
+              <h3 className="text-sm font-medium mb-3">Timeline</h3>
+              <TicketTimeline ticket={ticket} />
+            </div>
           </div>
 
           {/* Bug Stats */}
@@ -332,13 +293,27 @@ export function TicketCard({
             <p className="text-sm text-muted-foreground">
               This will mark the ticket as completed and calculate if it was delivered on time.
             </p>
+            {ticket.actualHours && ticket.actualHours > 0 && (
+              <div className="rounded-lg bg-muted/50 p-3 text-sm">
+                <p className="text-muted-foreground">
+                  Previously logged: <span className="font-medium text-foreground">{ticket.actualHours}h</span>
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  New hours will be added to this total.
+                </p>
+              </div>
+            )}
             <TextField
-              label="Actual Hours (optional)"
+              label={ticket.actualHours ? "Additional Hours" : "Actual Hours (optional)"}
               type="number"
               value={actualHours}
               onChange={(e) => setActualHours(e.target.value)}
-              placeholder={ticket.estimatedHours?.toString() || "Enter hours"}
-              description="How many hours did this ticket actually take?"
+              placeholder="Enter hours"
+              description={
+                ticket.actualHours 
+                  ? `Hours to add (new total: ${ticket.actualHours + (parseFloat(actualHours) || 0)}h)`
+                  : "How many hours did this ticket take?"
+              }
             />
             <div className="flex justify-end gap-2">
               <Button
