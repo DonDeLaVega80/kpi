@@ -14,6 +14,10 @@ import type {
 } from "@/types";
 
 // Developer commands
+export async function isFirstTimeSetup(): Promise<boolean> {
+  return invoke("is_first_time_setup");
+}
+
 export async function createDeveloper(
   data: CreateDeveloperInput
 ): Promise<Developer> {

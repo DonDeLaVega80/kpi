@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useDevelopers } from "@/hooks/useDevelopers";
 import { useTickets } from "@/hooks/useTickets";
 import { useBugs } from "@/hooks/useBugs";
-import { getCurrentMonthKPI, getKPIHistory } from "@/lib/tauri";
+import { getCurrentMonthKPI, getKPIHistory, isFirstTimeSetup } from "@/lib/tauri";
 import { MiniTrendChart } from "@/components/ui/mini-trend-chart";
 import { TicketFormDialog } from "@/components/tickets";
 import { BugFormDialog } from "@/components/bugs";
 import { Button } from "@/components/ui/button";
+import { WelcomeScreen } from "@/components/ui/welcome-screen";
 import type { MonthlyKPI } from "@/types";
 import type { CreateTicketInput, CreateBugInput } from "@/types";
 
@@ -26,6 +27,24 @@ export function Dashboard() {
   // Form dialog states
   const [isTicketFormOpen, setIsTicketFormOpen] = useState(false);
   const [isBugFormOpen, setIsBugFormOpen] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // Check for first-time setup
+  useEffect(() => {
+    const checkFirstTime = async () => {
+      if (!loadingDevs && developers.length === 0) {
+        try {
+          const isFirstTime = await isFirstTimeSetup();
+          setShowWelcome(isFirstTime);
+        } catch (error) {
+          console.error("Failed to check first-time setup:", error);
+        }
+      } else {
+        setShowWelcome(false);
+      }
+    };
+    checkFirstTime();
+  }, [loadingDevs, developers.length]);
 
   const activeDevelopers = developers.filter((d) => d.isActive);
   const openTickets = tickets.filter((t) => t.status !== "completed");
@@ -217,6 +236,11 @@ export function Dashboard() {
 
     return sorted;
   }, [kpiHistory]);
+
+  // Show welcome screen for first-time users
+  if (showWelcome) {
+    return <WelcomeScreen onDismiss={() => setShowWelcome(false)} />;
+  }
 
   return (
     <div className="space-y-6">

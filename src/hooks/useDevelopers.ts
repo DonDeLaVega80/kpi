@@ -7,6 +7,7 @@ import {
   deleteDeveloper as deleteDeveloperApi,
   getDeveloperById as getDeveloperByIdApi,
 } from "@/lib/tauri";
+import { useToast } from "@/hooks/use-toast";
 
 interface UseDevelopersReturn {
   developers: Developer[];
@@ -23,6 +24,7 @@ export function useDevelopers(): UseDevelopersReturn {
   const [developers, setDevelopers] = useState<Developer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -43,28 +45,73 @@ export function useDevelopers(): UseDevelopersReturn {
 
   const createDeveloper = useCallback(
     async (input: CreateDeveloperInput): Promise<Developer> => {
-      const developer = await createDeveloperApi(input);
-      await refresh();
-      return developer;
+      try {
+        const developer = await createDeveloperApi(input);
+        await refresh();
+        toast({
+          title: "Developer created",
+          description: `${input.name} has been added successfully.`,
+          variant: "success",
+        });
+        return developer;
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to create developer";
+        toast({
+          title: "Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        throw err;
+      }
     },
-    [refresh]
+    [refresh, toast]
   );
 
   const updateDeveloper = useCallback(
     async (input: UpdateDeveloperInput): Promise<Developer> => {
-      const developer = await updateDeveloperApi(input);
-      await refresh();
-      return developer;
+      try {
+        const developer = await updateDeveloperApi(input);
+        await refresh();
+        toast({
+          title: "Developer updated",
+          description: "Developer information has been updated successfully.",
+          variant: "success",
+        });
+        return developer;
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to update developer";
+        toast({
+          title: "Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        throw err;
+      }
     },
-    [refresh]
+    [refresh, toast]
   );
 
   const deleteDeveloper = useCallback(
     async (id: string): Promise<void> => {
-      await deleteDeveloperApi(id);
-      await refresh();
+      try {
+        await deleteDeveloperApi(id);
+        await refresh();
+        toast({
+          title: "Developer deactivated",
+          description: "Developer has been deactivated successfully.",
+          variant: "success",
+        });
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to deactivate developer";
+        toast({
+          title: "Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        throw err;
+      }
     },
-    [refresh]
+    [refresh, toast]
   );
 
   const getDeveloperById = useCallback(

@@ -9,6 +9,7 @@ import {
   completeTicket as completeTicketApi,
   reopenTicket as reopenTicketApi,
 } from "@/lib/tauri";
+import { useToast } from "@/hooks/use-toast";
 
 interface UseTicketsOptions {
   developerId?: string;
@@ -30,6 +31,7 @@ export function useTickets(options: UseTicketsOptions = {}): UseTicketsReturn {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const { developerId } = options;
 
@@ -54,47 +56,122 @@ export function useTickets(options: UseTicketsOptions = {}): UseTicketsReturn {
 
   const createTicket = useCallback(
     async (input: CreateTicketInput): Promise<Ticket> => {
-      const ticket = await createTicketApi(input);
-      await refresh();
-      return ticket;
+      try {
+        const ticket = await createTicketApi(input);
+        await refresh();
+        toast({
+          title: "Ticket created",
+          description: `Ticket "${input.title}" has been created successfully.`,
+          variant: "success",
+        });
+        return ticket;
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to create ticket";
+        toast({
+          title: "Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        throw err;
+      }
     },
-    [refresh]
+    [refresh, toast]
   );
 
   const updateTicket = useCallback(
     async (input: UpdateTicketInput): Promise<Ticket> => {
-      const ticket = await updateTicketApi(input);
-      await refresh();
-      return ticket;
+      try {
+        const ticket = await updateTicketApi(input);
+        await refresh();
+        toast({
+          title: "Ticket updated",
+          description: "Ticket has been updated successfully.",
+          variant: "success",
+        });
+        return ticket;
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to update ticket";
+        toast({
+          title: "Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        throw err;
+      }
     },
-    [refresh]
+    [refresh, toast]
   );
 
   const updateTicketStatus = useCallback(
     async (id: string, status: TicketStatus): Promise<Ticket> => {
-      const ticket = await updateTicketStatusApi(id, status);
-      await refresh();
-      return ticket;
+      try {
+        const ticket = await updateTicketStatusApi(id, status);
+        await refresh();
+        toast({
+          title: "Status updated",
+          description: `Ticket status changed to ${status.replace("_", " ")}.`,
+          variant: "success",
+        });
+        return ticket;
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to update ticket status";
+        toast({
+          title: "Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        throw err;
+      }
     },
-    [refresh]
+    [refresh, toast]
   );
 
   const completeTicket = useCallback(
     async (id: string, actualHours?: number): Promise<Ticket> => {
-      const ticket = await completeTicketApi(id, actualHours);
-      await refresh();
-      return ticket;
+      try {
+        const ticket = await completeTicketApi(id, actualHours);
+        await refresh();
+        toast({
+          title: "Ticket completed",
+          description: "Ticket has been marked as completed.",
+          variant: "success",
+        });
+        return ticket;
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to complete ticket";
+        toast({
+          title: "Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        throw err;
+      }
     },
-    [refresh]
+    [refresh, toast]
   );
 
   const reopenTicket = useCallback(
     async (id: string): Promise<Ticket> => {
-      const ticket = await reopenTicketApi(id);
-      await refresh();
-      return ticket;
+      try {
+        const ticket = await reopenTicketApi(id);
+        await refresh();
+        toast({
+          title: "Ticket reopened",
+          description: "Ticket has been reopened.",
+          variant: "success",
+        });
+        return ticket;
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to reopen ticket";
+        toast({
+          title: "Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        throw err;
+      }
     },
-    [refresh]
+    [refresh, toast]
   );
 
   return {

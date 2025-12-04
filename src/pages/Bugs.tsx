@@ -298,17 +298,35 @@ export function Bugs() {
   };
 
   if (error) {
+    const isCorrupted = error.toLowerCase().includes("corrupt") || 
+                        error.toLowerCase().includes("malformed") ||
+                        error.toLowerCase().includes("not a database");
+    
     return (
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Bugs</h1>
           <p className="text-muted-foreground">Track and classify bugs by type</p>
         </div>
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950">
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-          <Button variant="outline" size="sm" className="mt-2" onClick={refresh}>
-            Try Again
-          </Button>
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+          <p className="text-sm font-medium text-red-800 mb-2">
+            {isCorrupted ? "Database Corruption Detected" : "Error"}
+          </p>
+          <p className="text-sm text-red-600 mb-3">{error}</p>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={refresh}>
+              Try Again
+            </Button>
+            {isCorrupted && (
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={() => window.location.href = "/settings"}
+              >
+                Go to Settings to Restore
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -466,6 +484,7 @@ export function Bugs() {
         loading={loading}
         getRowKey={(bug) => bug.id}
         onRowClick={handleRowClick}
+        pagination={{ itemsPerPage: 25, showPagination: true }}
         emptyState={{
           icon: "🐛",
           title: search || severityFilter !== "all" || typeFilter !== "all" || resolvedFilter !== "all"

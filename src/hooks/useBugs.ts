@@ -8,6 +8,7 @@ import {
   updateBug as updateBugApi,
   resolveBug as resolveBugApi,
 } from "@/lib/tauri";
+import { useToast } from "@/hooks/use-toast";
 
 interface UseBugsOptions {
   ticketId?: string;
@@ -28,6 +29,7 @@ export function useBugs(options: UseBugsOptions = {}): UseBugsReturn {
   const [bugs, setBugs] = useState<Bug[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const { ticketId, developerId } = options;
 
@@ -58,29 +60,74 @@ export function useBugs(options: UseBugsOptions = {}): UseBugsReturn {
 
   const createBug = useCallback(
     async (input: CreateBugInput): Promise<Bug> => {
-      const bug = await createBugApi(input);
-      await refresh();
-      return bug;
+      try {
+        const bug = await createBugApi(input);
+        await refresh();
+        toast({
+          title: "Bug reported",
+          description: `Bug "${input.title}" has been reported successfully.`,
+          variant: "success",
+        });
+        return bug;
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to report bug";
+        toast({
+          title: "Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        throw err;
+      }
     },
-    [refresh]
+    [refresh, toast]
   );
 
   const updateBug = useCallback(
     async (input: UpdateBugInput): Promise<Bug> => {
-      const bug = await updateBugApi(input);
-      await refresh();
-      return bug;
+      try {
+        const bug = await updateBugApi(input);
+        await refresh();
+        toast({
+          title: "Bug updated",
+          description: "Bug information has been updated successfully.",
+          variant: "success",
+        });
+        return bug;
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to update bug";
+        toast({
+          title: "Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        throw err;
+      }
     },
-    [refresh]
+    [refresh, toast]
   );
 
   const resolveBug = useCallback(
     async (id: string, resolvedByDeveloperId?: string, fixTicketId?: string, fixHours?: number): Promise<Bug> => {
-      const bug = await resolveBugApi(id, resolvedByDeveloperId, fixTicketId, fixHours);
-      await refresh();
-      return bug;
+      try {
+        const bug = await resolveBugApi(id, resolvedByDeveloperId, fixTicketId, fixHours);
+        await refresh();
+        toast({
+          title: "Bug resolved",
+          description: "Bug has been marked as resolved.",
+          variant: "success",
+        });
+        return bug;
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : "Failed to resolve bug";
+        toast({
+          title: "Error",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        throw err;
+      }
     },
-    [refresh]
+    [refresh, toast]
   );
 
   return {

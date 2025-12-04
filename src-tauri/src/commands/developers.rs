@@ -33,7 +33,16 @@ pub fn create_developer(
             &now,
         ),
     )
-    .map_err(|e| format!("Failed to create developer: {}", e))?;
+    .map_err(|e| {
+        let error_msg = e.to_string();
+        if error_msg.contains("UNIQUE constraint") || error_msg.contains("unique constraint") {
+            format!("A developer with this email already exists. Please use a different email address.")
+        } else if error_msg.contains("NOT NULL constraint") || error_msg.contains("NOT NULL") {
+            format!("Required fields are missing. Please fill in all required information.")
+        } else {
+            format!("Failed to create developer. Please check your input and try again.")
+        }
+    })?;
 
     Ok(Developer {
         id,
@@ -46,6 +55,22 @@ pub fn create_developer(
         created_at: now.clone(),
         updated_at: now,
     })
+}
+
+/// Check if this is the first time setup (no developers exist)
+#[tauri::command]
+pub fn is_first_time_setup(state: State<DbState>) -> Result<bool, String> {
+    let conn = state.0.lock().map_err(|e| format!("Database lock error: {}", e))?;
+    
+    let count: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM developers",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|e| format!("Failed to check developers count: {}", e))?;
+    
+    Ok(count == 0)
 }
 
 /// Get all developers (optionally filter by active status)
