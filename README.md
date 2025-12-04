@@ -2,6 +2,17 @@
 
 A standalone desktop application for tracking developer performance through ticket management, bug tracking, and monthly KPI reporting.
 
+## 🚧 Development Status
+
+**Phase 0 Complete** - Project foundation is set up and ready for feature development.
+
+- ✅ Tauri + React + TypeScript project initialized
+- ✅ Tailwind CSS + shadcn/ui configured
+- ✅ SQLite database with migrations
+- ✅ Rust backend structure (commands, models, services)
+- 🔲 Phase 1: Core Data Layer (CRUD operations)
+- 🔲 Phase 2-11: See [Development Roadmap](DEVELOPMENT_ROADMAP.md)
+
 ## Features
 
 - **Developer Management** - Track your team members with roles (junior, mid, senior, lead)
@@ -14,10 +25,10 @@ A standalone desktop application for tracking developer performance through tick
 
 | Component    | Technology         |
 | ------------ | ------------------ |
-| Framework    | Tauri              |
-| Frontend     | React + TypeScript |
-| Styling      | Tailwind + shadcn  |
-| Database     | SQLite (embedded)  |
+| Framework    | Tauri 2.x          |
+| Frontend     | React 19 + TypeScript |
+| Styling      | Tailwind CSS 4 + shadcn/ui |
+| Database     | SQLite (rusqlite)  |
 | Backend      | Rust               |
 
 ## Installation
@@ -26,6 +37,7 @@ A standalone desktop application for tracking developer performance through tick
 Download the `.dmg` file from [Releases](releases), open it, and drag the app to your Applications folder. That's it!
 
 ### For Developers
+
 ```bash
 # Prerequisites
 # - Node.js 18+
@@ -44,6 +56,25 @@ npm run tauri dev
 
 # Build for production
 npm run tauri build
+```
+
+## Project Structure
+
+```
+kpi/
+├── src/                      # React frontend
+│   ├── components/ui/        # shadcn/ui components
+│   ├── pages/                # Page components
+│   ├── hooks/                # Custom React hooks
+│   ├── types/                # TypeScript interfaces
+│   └── lib/                  # Utilities & Tauri wrappers
+├── src-tauri/src/            # Rust backend
+│   ├── commands/             # Tauri IPC commands
+│   ├── db/                   # Database & migrations
+│   ├── models/               # Data structures
+│   └── services/             # Business logic
+├── ARCHITECTURE.md           # Technical design
+└── DEVELOPMENT_ROADMAP.md    # Build guide
 ```
 
 ## Documentation
@@ -71,8 +102,8 @@ Your data is stored locally at:
 ```
 ~/Library/Application Support/kpi-tool/
 ├── kpi.db          # SQLite database
-├── config.json     # Preferences
-└── backups/        # Auto-backups
+├── config.json     # Preferences (coming soon)
+└── backups/        # Auto-backups (coming soon)
 ```
 
 ## License
