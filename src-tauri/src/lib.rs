@@ -19,6 +19,7 @@ pub fn run() {
         .manage(db_state)
         .invoke_handler(tauri::generate_handler![
             // Developer commands
+            is_first_time_setup,
             create_developer,
             get_all_developers,
             get_developer_by_id,

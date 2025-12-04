@@ -401,9 +401,9 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 10.3 Edge Cases
 
-- [ ] Handle empty states (no developers, no tickets)
-- [ ] Handle first-time setup
-- [ ] Handle corrupted database (offer restore)
+- [x] Handle empty states (no developers, no tickets)
+- [x] Handle first-time setup
+- [x] Handle corrupted database (offer restore)
 
 ### 10.4 Performance
 

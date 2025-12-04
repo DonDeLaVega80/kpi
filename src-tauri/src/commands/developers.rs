@@ -57,6 +57,22 @@ pub fn create_developer(
     })
 }
 
+/// Check if this is the first time setup (no developers exist)
+#[tauri::command]
+pub fn is_first_time_setup(state: State<DbState>) -> Result<bool, String> {
+    let conn = state.0.lock().map_err(|e| format!("Database lock error: {}", e))?;
+    
+    let count: i64 = conn
+        .query_row(
+            "SELECT COUNT(*) FROM developers",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|e| format!("Failed to check developers count: {}", e))?;
+    
+    Ok(count == 0)
+}
+
 /// Get all developers (optionally filter by active status)
 #[tauri::command]
 pub fn get_all_developers(state: State<DbState>) -> Result<Vec<Developer>, String> {

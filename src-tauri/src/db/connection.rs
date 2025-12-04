@@ -28,8 +28,42 @@ pub fn init_db() -> Result<Connection, String> {
     }
 
     let db_path = get_db_path();
+    
+    // Check if database file exists and is corrupted
+    if db_path.exists() {
+        // Try to open and verify integrity
+        match Connection::open(&db_path) {
+            Ok(conn) => {
+                // Check database integrity
+                let integrity_check: String = conn
+                    .query_row("PRAGMA integrity_check", [], |row| row.get(0))
+                    .unwrap_or_else(|_| "ok".to_string());
+                
+                if integrity_check != "ok" {
+                    return Err(format!(
+                        "Database corruption detected. Please restore from a backup. Error: {}",
+                        integrity_check
+                    ));
+                }
+            }
+            Err(e) => {
+                // Database file exists but can't be opened - likely corrupted
+                return Err(format!(
+                    "Database file appears to be corrupted. Please restore from a backup. Error: {}",
+                    e
+                ));
+            }
+        }
+    }
+    
     let conn =
-        Connection::open(&db_path).map_err(|e| format!("Failed to open database: {}", e))?;
+        Connection::open(&db_path).map_err(|e| {
+            if e.to_string().contains("not a database") || e.to_string().contains("malformed") {
+                format!("Database file is corrupted. Please restore from a backup or delete the database file to start fresh.")
+            } else {
+                format!("Failed to open database: {}", e)
+            }
+        })?;
 
     // Enable foreign keys
     conn.execute("PRAGMA foreign_keys = ON", [])
