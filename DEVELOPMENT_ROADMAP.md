@@ -10,10 +10,10 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 0.1 Initialize Tauri Project
 
-- [ ] Install prerequisites (Node.js 18+, Rust, Xcode CLI tools)
-- [ ] Create new Tauri project: `npm create tauri-app@latest kpi-tool`
-- [ ] Select React + TypeScript template
-- [ ] Verify setup with `npm run tauri dev`
+- [x] Install prerequisites (Node.js 18+, Rust, Xcode CLI tools)
+- [x] Create new Tauri project: `npm create tauri-app@latest kpi-tool`
+- [x] Select React + TypeScript template
+- [x] Verify setup with `npm run tauri dev`
 
 ### 0.2 Configure Frontend Tooling
 
