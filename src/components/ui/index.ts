@@ -33,3 +33,8 @@ export * from "./ticket-bar-chart";
 // Settings components
 export * from "./slider";
 
+// Toast and Error Handling
+export { Toast, ToastProvider, ToastViewport, ToastTitle, ToastDescription, ToastClose, ToastAction } from "./toast";
+export { Toaster } from "./toaster";
+export { ErrorBoundary } from "./error-boundary";
+
