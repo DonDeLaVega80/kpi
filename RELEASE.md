@@ -10,11 +10,20 @@ The standalone macOS application has been built and is available at:
 src-tauri/target/release/bundle/dmg/KPI Tool_0.1.0_aarch64.dmg
 ```
 
+- **Size**: 5.3 MB
+- **Platform**: macOS (Apple Silicon / ARM64)
+- **Build Date**: December 4, 2024
+- **Ready for distribution**
+
 **App Bundle:**
 
 ```
 src-tauri/target/release/bundle/macos/KPI Tool.app
 ```
+
+- **Size**: 13 MB (uncompressed)
+- **Platform**: macOS (Apple Silicon / ARM64)
+- **Can be run directly or distributed**
 
 ## Distribution Steps
 
