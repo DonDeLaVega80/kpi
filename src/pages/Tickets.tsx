@@ -1,107 +1,327 @@
+import { useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useTickets } from "@/hooks/useTickets";
+import { useDevelopers } from "@/hooks/useDevelopers";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  DataTable,
+  Column,
+  TicketStatusBadge,
+  StatusBadge,
+} from "@/components/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { TicketFormDialog } from "@/components/tickets/TicketFormDialog";
+import type { Ticket, CreateTicketInput, UpdateTicketInput, TicketStatus } from "@/types";
 
-const statusColors: Record<string, string> = {
-  assigned: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
-  in_progress: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-  review: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-  completed: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  reopened: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-};
+// Helper to check if a ticket is overdue
+function isOverdue(ticket: Ticket): boolean {
+  if (ticket.status === "completed") return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dueDate = new Date(ticket.dueDate);
+  return dueDate < today;
+}
+
+// Helper to format date for display
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+type SortField = "dueDate" | "assignedDate" | "status" | "complexity";
+type SortOrder = "asc" | "desc";
 
 export function Tickets() {
-  const { tickets, loading, error } = useTickets();
+  const [searchParams] = useSearchParams();
+  const developerIdFromUrl = searchParams.get("developer") || undefined;
+  
+  const { tickets, loading, error, createTicket, refresh } = useTickets();
+  const { developers } = useDevelopers();
+  
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<TicketStatus | "all">("all");
+  const [developerFilter, setDeveloperFilter] = useState<string>(developerIdFromUrl || "all");
+  const [sortField, setSortField] = useState<SortField>("dueDate");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+  // Get developer name by ID
+  const getDeveloperName = (developerId: string): string => {
+    const dev = developers.find((d) => d.id === developerId);
+    return dev?.name || "Unknown";
+  };
+
+  // Filter and sort tickets
+  const filteredTickets = useMemo(() => {
+    let result = tickets.filter((ticket) => {
+      // Search filter
+      const searchLower = search.toLowerCase();
+      const matchesSearch =
+        !search ||
+        ticket.title.toLowerCase().includes(searchLower) ||
+        ticket.description?.toLowerCase().includes(searchLower);
+
+      // Status filter
+      const matchesStatus = statusFilter === "all" || ticket.status === statusFilter;
+
+      // Developer filter
+      const matchesDeveloper =
+        developerFilter === "all" || ticket.developerId === developerFilter;
+
+      return matchesSearch && matchesStatus && matchesDeveloper;
+    });
+
+    // Sort
+    result.sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortField) {
+        case "dueDate":
+          comparison = new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+          break;
+        case "assignedDate":
+          comparison = new Date(a.assignedDate).getTime() - new Date(b.assignedDate).getTime();
+          break;
+        case "status": {
+          const statusOrder: Record<TicketStatus, number> = {
+            assigned: 1,
+            in_progress: 2,
+            review: 3,
+            completed: 4,
+            reopened: 0,
+          };
+          comparison = statusOrder[a.status] - statusOrder[b.status];
+          break;
+        }
+        case "complexity": {
+          const complexityOrder = { low: 1, medium: 2, high: 3, critical: 4 };
+          comparison = complexityOrder[a.complexity] - complexityOrder[b.complexity];
+          break;
+        }
+      }
+
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+
+    return result;
+  }, [tickets, search, statusFilter, developerFilter, sortField, sortOrder]);
+
+  // Table columns configuration
+  const columns: Column<Ticket>[] = [
+    {
+      key: "title",
+      header: "Title",
+      cell: (ticket) => (
+        <div className="max-w-[300px]">
+          <p className="font-medium truncate">{ticket.title}</p>
+          {ticket.description && (
+            <p className="text-sm text-muted-foreground truncate">
+              {ticket.description}
+            </p>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "developer",
+      header: "Developer",
+      cell: (ticket) => (
+        <span className="text-sm">{getDeveloperName(ticket.developerId)}</span>
+      ),
+    },
+    {
+      key: "dueDate",
+      header: "Due Date",
+      cell: (ticket) => {
+        const overdue = isOverdue(ticket);
+        return (
+          <span className={overdue ? "text-red-600 dark:text-red-400 font-medium" : "text-muted-foreground"}>
+            {formatDate(ticket.dueDate)}
+            {overdue && " ⚠️"}
+          </span>
+        );
+      },
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (ticket) => <TicketStatusBadge status={ticket.status} />,
+    },
+    {
+      key: "complexity",
+      header: "Complexity",
+      cell: (ticket) => (
+        <StatusBadge
+          status={ticket.complexity}
+          variant={
+            ticket.complexity === "critical"
+              ? "error"
+              : ticket.complexity === "high"
+              ? "warning"
+              : ticket.complexity === "medium"
+              ? "info"
+              : "default"
+          }
+        />
+      ),
+    },
+    {
+      key: "reopenCount",
+      header: "Reopens",
+      className: "w-[80px]",
+      cell: (ticket) =>
+        ticket.reopenCount > 0 ? (
+          <span className="text-red-600 dark:text-red-400 font-medium">
+            {ticket.reopenCount}
+          </span>
+        ) : (
+          <span className="text-muted-foreground">0</span>
+        ),
+    },
+  ];
+
+  const handleCreateTicket = async (data: CreateTicketInput | UpdateTicketInput) => {
+    await createTicket(data as CreateTicketInput);
+    setIsFormOpen(false);
+  };
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Tickets</h1>
+          <p className="text-muted-foreground">Track ticket assignments and progress</p>
+        </div>
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950">
+          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <Button variant="outline" size="sm" className="mt-2" onClick={refresh}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Tickets</h1>
           <p className="text-muted-foreground">
-            Track ticket assignments and progress
+            Track ticket assignments and progress ({filteredTickets.length} of {tickets.length})
           </p>
         </div>
-        <button className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-          + Create Ticket
-        </button>
+        <Button onClick={() => setIsFormOpen(true)}>+ Create Ticket</Button>
       </div>
 
-      {loading && (
-        <div className="flex items-center justify-center py-12">
-          <p className="text-muted-foreground">Loading tickets...</p>
+      {/* Filters */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+        <div className="flex-1">
+          <Input
+            placeholder="Search by title or description..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="max-w-sm"
+          />
         </div>
-      )}
+        
+        <div className="flex flex-wrap gap-2">
+          {/* Status Filter */}
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as TicketStatus | "all")}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="assigned">Assigned</SelectItem>
+              <SelectItem value="in_progress">In Progress</SelectItem>
+              <SelectItem value="review">Review</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="reopened">Reopened</SelectItem>
+            </SelectContent>
+          </Select>
 
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950">
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-        </div>
-      )}
+          {/* Developer Filter */}
+          <Select value={developerFilter} onValueChange={setDeveloperFilter}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Developer" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Developers</SelectItem>
+              {developers
+                .filter((d) => d.isActive)
+                .map((dev) => (
+                  <SelectItem key={dev.id} value={dev.id}>
+                    {dev.name}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
 
-      {!loading && !error && tickets.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
-          <span className="text-4xl">🎫</span>
-          <h3 className="mt-4 text-lg font-semibold">No tickets yet</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Create your first ticket to start tracking work
-          </p>
+          {/* Sort Options */}
+          <Select value={`${sortField}-${sortOrder}`} onValueChange={(v) => {
+            const [field, order] = v.split("-") as [SortField, SortOrder];
+            setSortField(field);
+            setSortOrder(order);
+          }}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="dueDate-asc">Due Date ↑</SelectItem>
+              <SelectItem value="dueDate-desc">Due Date ↓</SelectItem>
+              <SelectItem value="assignedDate-asc">Assigned ↑</SelectItem>
+              <SelectItem value="assignedDate-desc">Assigned ↓</SelectItem>
+              <SelectItem value="status-asc">Status ↑</SelectItem>
+              <SelectItem value="status-desc">Status ↓</SelectItem>
+              <SelectItem value="complexity-asc">Complexity ↑</SelectItem>
+              <SelectItem value="complexity-desc">Complexity ↓</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-      )}
+      </div>
 
-      {!loading && !error && tickets.length > 0 && (
-        <div className="rounded-lg border">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b bg-muted/50">
-                <th className="px-4 py-3 text-left text-sm font-medium">Title</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Due Date</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Complexity</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Reopens</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tickets.map((ticket) => (
-                <tr key={ticket.id} className="border-b last:border-0">
-                  <td className="px-4 py-3">
-                    <div>
-                      <p className="font-medium">{ticket.title}</p>
-                      {ticket.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-1">
-                          {ticket.description}
-                        </p>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        statusColors[ticket.status] || statusColors.assigned
-                      }`}
-                    >
-                      {ticket.status.replace("_", " ")}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {ticket.dueDate}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-sm capitalize">{ticket.complexity}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    {ticket.reopenCount > 0 ? (
-                      <span className="text-red-600 dark:text-red-400">
-                        {ticket.reopenCount}
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground">0</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {/* Data Table */}
+      <DataTable
+        data={filteredTickets}
+        columns={columns}
+        loading={loading}
+        getRowKey={(ticket) => ticket.id}
+        emptyState={{
+          icon: "🎫",
+          title: search || statusFilter !== "all" || developerFilter !== "all" 
+            ? "No tickets found" 
+            : "No tickets yet",
+          description:
+            search || statusFilter !== "all" || developerFilter !== "all"
+              ? "Try adjusting your search or filter criteria"
+              : "Create your first ticket to start tracking work",
+          action:
+            !search && statusFilter === "all" && developerFilter === "all" ? (
+              <Button onClick={() => setIsFormOpen(true)}>+ Create Ticket</Button>
+            ) : undefined,
+        }}
+      />
+
+      {/* Create Ticket Dialog */}
+      <TicketFormDialog
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        onSubmit={handleCreateTicket}
+        developers={developers.filter((d) => d.isActive)}
+      />
     </div>
   );
 }

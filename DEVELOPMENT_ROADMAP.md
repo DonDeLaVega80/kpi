@@ -153,12 +153,12 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 4.1 Ticket List Page
 
-- [ ] Create `Tickets` page
-- [ ] Display tickets in table view
-- [ ] Show: title, developer, due date, status, complexity
-- [ ] Color-code overdue tickets
-- [ ] Filter by: status, developer, date range
-- [ ] Sort by: due date, assigned date, status
+- [x] Create `Tickets` page
+- [x] Display tickets in table view
+- [x] Show: title, developer, due date, status, complexity
+- [x] Color-code overdue tickets
+- [x] Filter by: status, developer, date range
+- [x] Sort by: due date, assigned date, status
 
 ### 4.2 Ticket Form
 
