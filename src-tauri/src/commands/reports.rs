@@ -1,4 +1,5 @@
 // Report/KPI commands - Monthly KPI generation and history
+use crate::config::load_kpi_config;
 use crate::db::DbState;
 use crate::models::{KPIConfig, KPITrend, MonthlyKPI};
 use crate::services::{
@@ -252,7 +253,7 @@ pub fn generate_monthly_kpi(
     let bug_metrics = aggregate_bug_metrics(&conn, &developer_id, month, year)?;
 
     // Calculate scores using the KPI calculator service
-    let config = KPIConfig::default();
+    let config = load_kpi_config().unwrap_or_else(|_| KPIConfig::default());
 
     let delivery_metrics = DeliveryMetrics {
         completed_tickets: ticket_metrics.completed_tickets,
@@ -487,7 +488,7 @@ pub fn get_current_month_kpi(
     let bug_metrics = aggregate_bug_metrics(&conn, &developer_id, month, year)?;
 
     // Calculate scores
-    let config = KPIConfig::default();
+    let config = load_kpi_config().unwrap_or_else(|_| KPIConfig::default());
 
     let delivery_metrics = DeliveryMetrics {
         completed_tickets: ticket_metrics.completed_tickets,
@@ -629,7 +630,7 @@ pub fn export_monthly_kpi_csv(
                 .unwrap_or_default();
 
             // Calculate scores
-            let config = KPIConfig::default();
+            let config = load_kpi_config().unwrap_or_else(|_| KPIConfig::default());
             let delivery_metrics = DeliveryMetrics {
                 completed_tickets: ticket_metrics.completed_tickets,
                 on_time_tickets: ticket_metrics.on_time_tickets,
@@ -730,7 +731,7 @@ pub fn export_monthly_kpi_csv(
             conceptual_bugs += bug_metrics.conceptual_bugs;
             other_bugs += bug_metrics.other_bugs;
 
-            let config = KPIConfig::default();
+            let config = load_kpi_config().unwrap_or_else(|_| KPIConfig::default());
             let delivery_metrics = DeliveryMetrics {
                 completed_tickets: ticket_metrics.completed_tickets,
                 on_time_tickets: ticket_metrics.on_time_tickets,

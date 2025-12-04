@@ -30,3 +30,6 @@ export * from "./mini-trend-chart";
 export * from "./bug-pie-chart";
 export * from "./ticket-bar-chart";
 
+// Settings components
+export * from "./slider";
+

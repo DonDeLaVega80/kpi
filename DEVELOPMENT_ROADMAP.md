@@ -361,10 +361,10 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 9.2 KPI Configuration
 
-- [ ] Delivery score weight slider
-- [ ] Quality score weight slider
-- [ ] Bug severity penalties (editable)
-- [ ] Save to config file
+- [x] Delivery score weight slider
+- [x] Quality score weight slider
+- [x] Bug severity penalties (editable)
+- [x] Save to config file
 
 ### 9.3 Data Management
 

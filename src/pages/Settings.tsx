@@ -1,9 +1,94 @@
-import { Card } from "@/components/ui/card";
-import { Settings as SettingsIcon, Sliders, Database, Palette } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Settings as SettingsIcon, Sliders, Database, Palette, Save, Loader2 } from "lucide-react";
+import { getKPIConfig, saveKPIConfig } from "@/lib/tauri";
+import type { KPIConfig } from "@/types";
 
 export function Settings() {
+  const [kpiConfig, setKpiConfig] = useState<KPIConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  // Local state for editing
+  const [deliveryWeight, setDeliveryWeight] = useState(0.5);
+  const [qualityWeight, setQualityWeight] = useState(0.5);
+  const [bugPenaltyCritical, setBugPenaltyCritical] = useState(15.0);
+  const [bugPenaltyHigh, setBugPenaltyHigh] = useState(10.0);
+  const [bugPenaltyMedium, setBugPenaltyMedium] = useState(5.0);
+  const [bugPenaltyLow, setBugPenaltyLow] = useState(2.0);
+
+  // Load config on mount
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        setLoading(true);
+        const config = await getKPIConfig();
+        setKpiConfig(config);
+        setDeliveryWeight(config.deliveryWeight);
+        setQualityWeight(config.qualityWeight);
+        setBugPenaltyCritical(config.bugPenalties.critical);
+        setBugPenaltyHigh(config.bugPenalties.high);
+        setBugPenaltyMedium(config.bugPenalties.medium);
+        setBugPenaltyLow(config.bugPenalties.low);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load KPI configuration");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadConfig();
+  }, []);
+
+  // Auto-adjust quality weight when delivery weight changes (only if user is adjusting delivery)
+  const handleDeliveryWeightChange = (value: number) => {
+    setDeliveryWeight(value);
+    setQualityWeight(1.0 - value);
+  };
+
+  // Auto-adjust delivery weight when quality weight changes (only if user is adjusting quality)
+  const handleQualityWeightChange = (value: number) => {
+    setQualityWeight(value);
+    setDeliveryWeight(1.0 - value);
+  };
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      setSuccess(false);
+
+      await saveKPIConfig(
+        deliveryWeight,
+        qualityWeight,
+        bugPenaltyCritical,
+        bugPenaltyHigh,
+        bugPenaltyMedium,
+        bugPenaltyLow
+      );
+
+      // Reload config to get updated values
+      const config = await getKPIConfig();
+      setKpiConfig(config);
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save KPI configuration");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const totalWeight = deliveryWeight + qualityWeight;
+  const weightError = Math.abs(totalWeight - 1.0) > 0.01;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
@@ -15,25 +100,186 @@ export function Settings() {
       {/* Settings Sections */}
       <div className="space-y-6">
         {/* KPI Configuration Section */}
-        <Card className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
-              <Sliders className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
+                <Sliders className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="flex-1">
+                <CardTitle>KPI Configuration</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Adjust how KPI scores are calculated
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg font-semibold">KPI Configuration</h2>
-              <p className="text-sm text-muted-foreground">
-                Adjust how KPI scores are calculated
-              </p>
-            </div>
-          </div>
-          <div className="pl-14">
-            <p className="text-sm text-muted-foreground">
-              Configure delivery and quality score weights, and bug severity penalties.
-              <br />
-              <span className="text-xs italic">Coming in Phase 9.2</span>
-            </p>
-          </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-sm text-muted-foreground">Loading configuration...</span>
+              </div>
+            ) : (
+              <>
+                {error && (
+                  <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950">
+                    <p className="text-sm font-medium text-red-800 dark:text-red-200">Error</p>
+                    <p className="text-sm text-red-600 dark:text-red-400 mt-1">{error}</p>
+                  </div>
+                )}
+
+                {success && (
+                  <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950">
+                    <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                      Configuration saved successfully!
+                    </p>
+                  </div>
+                )}
+
+                {/* Score Weights */}
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-semibold mb-4">Score Weights</h3>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      These weights determine how delivery and quality scores are combined into the overall score.
+                      They must sum to 1.0 (100%).
+                    </p>
+                    
+                    <div className="space-y-4">
+                      <Slider
+                        label="Delivery Weight"
+                        description="Weight for delivery score in overall KPI calculation (quality weight is automatically adjusted)"
+                        value={deliveryWeight}
+                        onValueChange={handleDeliveryWeightChange}
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        unit=""
+                        className={weightError ? "border-red-500" : ""}
+                      />
+                      <Slider
+                        label="Quality Weight"
+                        description="Weight for quality score in overall KPI calculation (delivery weight is automatically adjusted)"
+                        value={qualityWeight}
+                        onValueChange={handleQualityWeightChange}
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        unit=""
+                        className={weightError ? "border-red-500" : ""}
+                      />
+                      {weightError && (
+                        <p className="text-xs text-red-600 dark:text-red-400">
+                          ⚠️ Weights must sum to 1.0 (current: {(totalWeight * 100).toFixed(1)}%)
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground">Total:</span>
+                        <span className={weightError ? "text-red-600 dark:text-red-400 font-semibold" : "font-semibold"}>
+                          {(totalWeight * 100).toFixed(1)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bug Penalties */}
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-semibold mb-4">Bug Severity Penalties</h3>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Points deducted from quality score for each bug based on severity.
+                      Higher severity bugs have larger penalties.
+                    </p>
+                    
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="penalty-critical">Critical</Label>
+                        <Input
+                          id="penalty-critical"
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value={bugPenaltyCritical}
+                          onChange={(e) => setBugPenaltyCritical(parseFloat(e.target.value) || 0)}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Points deducted per critical bug
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="penalty-high">High</Label>
+                        <Input
+                          id="penalty-high"
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value={bugPenaltyHigh}
+                          onChange={(e) => setBugPenaltyHigh(parseFloat(e.target.value) || 0)}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Points deducted per high severity bug
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="penalty-medium">Medium</Label>
+                        <Input
+                          id="penalty-medium"
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value={bugPenaltyMedium}
+                          onChange={(e) => setBugPenaltyMedium(parseFloat(e.target.value) || 0)}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Points deducted per medium severity bug
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="penalty-low">Low</Label>
+                        <Input
+                          id="penalty-low"
+                          type="number"
+                          min="0"
+                          step="0.1"
+                          value={bugPenaltyLow}
+                          onChange={(e) => setBugPenaltyLow(parseFloat(e.target.value) || 0)}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Points deducted per low severity bug
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Save Button */}
+                <div className="flex justify-end pt-4 border-t">
+                  <Button
+                    onClick={handleSave}
+                    disabled={saving || weightError}
+                    className="min-w-[120px]"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" />
+                        Save Configuration
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </>
+            )}
+          </CardContent>
         </Card>
 
         {/* Data Management Section */}
