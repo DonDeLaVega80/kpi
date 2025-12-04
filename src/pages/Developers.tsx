@@ -7,15 +7,19 @@ import {
   Column,
   StatusBadge,
   DeveloperRoleBadge,
+  ConfirmDialog,
 } from "@/components/ui/";
 import { DeveloperFormDialog } from "@/components/developers/DeveloperFormDialog";
 import type { Developer, CreateDeveloperInput, UpdateDeveloperInput } from "@/types";
 
 export function Developers() {
-  const { developers, loading, error, createDeveloper, refresh } = useDevelopers();
+  const { developers, loading, error, createDeveloper, updateDeveloper, deleteDeveloper, refresh } = useDevelopers();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingDeveloper, setEditingDeveloper] = useState<Developer | undefined>();
+  const [deactivatingDeveloper, setDeactivatingDeveloper] = useState<Developer | undefined>();
+  const [isDeactivating, setIsDeactivating] = useState(false);
 
   // Filter developers based on search and status
   const filteredDevelopers = useMemo(() => {
@@ -79,12 +83,76 @@ export function Developers() {
         />
       ),
     },
+    {
+      key: "actions",
+      header: "",
+      className: "w-[100px]",
+      cell: (dev) => (
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(dev);
+            }}
+          >
+            ✏️
+          </Button>
+          {dev.isActive && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeactivatingDeveloper(dev);
+              }}
+            >
+              🚫
+            </Button>
+          )}
+        </div>
+      ),
+    },
   ];
 
-  const handleCreateDeveloper = async (data: CreateDeveloperInput | UpdateDeveloperInput) => {
-    // For create mode, we only receive CreateDeveloperInput
-    await createDeveloper(data as CreateDeveloperInput);
+  const handleEdit = (developer: Developer) => {
+    setEditingDeveloper(developer);
+    setIsFormOpen(true);
+  };
+
+  const handleCreateOrUpdate = async (data: CreateDeveloperInput | UpdateDeveloperInput) => {
+    if (editingDeveloper) {
+      // Edit mode
+      await updateDeveloper({
+        id: editingDeveloper.id,
+        ...data,
+      } as UpdateDeveloperInput);
+    } else {
+      // Create mode
+      await createDeveloper(data as CreateDeveloperInput);
+    }
     setIsFormOpen(false);
+    setEditingDeveloper(undefined);
+  };
+
+  const handleDeactivate = async () => {
+    if (!deactivatingDeveloper) return;
+    
+    setIsDeactivating(true);
+    try {
+      await deleteDeveloper(deactivatingDeveloper.id);
+      setDeactivatingDeveloper(undefined);
+    } finally {
+      setIsDeactivating(false);
+    }
+  };
+
+  const handleFormClose = (open: boolean) => {
+    setIsFormOpen(open);
+    if (!open) {
+      setEditingDeveloper(undefined);
+    }
   };
 
   if (error) {
@@ -172,11 +240,24 @@ export function Developers() {
         }}
       />
 
-      {/* Create Developer Dialog */}
+      {/* Create/Edit Developer Dialog */}
       <DeveloperFormDialog
         open={isFormOpen}
-        onOpenChange={setIsFormOpen}
-        onSubmit={handleCreateDeveloper}
+        onOpenChange={handleFormClose}
+        onSubmit={handleCreateOrUpdate}
+        developer={editingDeveloper}
+      />
+
+      {/* Deactivate Confirmation Dialog */}
+      <ConfirmDialog
+        open={!!deactivatingDeveloper}
+        onOpenChange={(open) => !open && setDeactivatingDeveloper(undefined)}
+        title="Deactivate Developer"
+        description={`Are you sure you want to deactivate ${deactivatingDeveloper?.name}? They will no longer appear in active lists, but their historical data will be preserved.`}
+        confirmText="Deactivate"
+        variant="destructive"
+        onConfirm={handleDeactivate}
+        loading={isDeactivating}
       />
     </div>
   );

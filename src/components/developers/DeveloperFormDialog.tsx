@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -71,6 +72,29 @@ export function DeveloperFormDialog({
 
   const roleValue = watch("role");
   const startDateValue = watch("startDate");
+
+  // Reset form when developer changes (switching between create/edit mode)
+  useEffect(() => {
+    if (open) {
+      if (developer) {
+        reset({
+          name: developer.name,
+          email: developer.email,
+          role: developer.role,
+          team: developer.team || "",
+          startDate: developer.startDate,
+        });
+      } else {
+        reset({
+          name: "",
+          email: "",
+          role: undefined,
+          team: "",
+          startDate: new Date().toISOString().split("T")[0],
+        });
+      }
+    }
+  }, [developer, open, reset]);
 
   const onFormSubmit = async (data: DeveloperFormData) => {
     try {

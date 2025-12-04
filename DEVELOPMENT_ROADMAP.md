@@ -130,11 +130,11 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 3.2 Developer Form
 
-- [ ] Create `DeveloperForm` component
-- [ ] Fields: name, email, role (dropdown), team, start date
-- [ ] Validation: required fields, email format
-- [ ] Handle create mode
-- [ ] Handle edit mode
+- [x] Create `DeveloperForm` component
+- [x] Fields: name, email, role (dropdown), team, start date
+- [x] Validation: required fields, email format
+- [x] Handle create mode
+- [x] Handle edit mode
 
 ### 3.3 Developer Detail/Card
 
