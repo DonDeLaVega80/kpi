@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
@@ -7,9 +8,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { StatCard, StatusBadge, DeveloperRoleBadge } from "@/components/ui";
+import { DeveloperKPI } from "@/components/reports";
 import type { Developer } from "@/types";
 import { useTickets } from "@/hooks/useTickets";
 import { useBugs } from "@/hooks/useBugs";
+import { cn } from "@/lib/utils";
 
 interface DeveloperCardProps {
   developer: Developer;
@@ -27,6 +30,7 @@ export function DeveloperCard({
   onDeactivate,
 }: DeveloperCardProps) {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<"overview" | "kpi">("overview");
   const { tickets } = useTickets({ developerId: developer.id });
   const { bugs } = useBugs({ developerId: developer.id });
 
@@ -56,7 +60,7 @@ export function DeveloperCard({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <span className="text-2xl">👤</span>
@@ -86,83 +90,120 @@ export function DeveloperCard({
           />
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-3">
-          <StatCard
-            icon="🎫"
-            label="Total Tickets"
-            value={totalTickets}
-            description={`${inProgressTickets} in progress`}
-            className="p-4"
-          />
-          <StatCard
-            icon="✅"
-            label="Completed"
-            value={completedTickets}
-            description={`${completionRate}% completion rate`}
-            className="p-4"
-          />
-          <StatCard
-            icon="⏱️"
-            label="On-Time Delivery"
-            value={`${onTimeRate}%`}
-            description={`${onTimeTickets} of ${completedTickets} on time`}
-            className="p-4"
-          />
-          <StatCard
-            icon="🔄"
-            label="Reopened"
-            value={reopenedTickets}
-            description="Tickets reopened"
-            className="p-4"
-          />
-          <StatCard
-            icon="🐛"
-            label="Total Bugs"
-            value={totalBugs}
-            description={`${resolvedBugs} resolved`}
-            className="p-4"
-          />
-          <StatCard
-            icon="⚠️"
-            label="Developer Errors"
-            value={developerErrorBugs}
-            description="Bugs attributed to developer"
-            className="p-4"
-          />
+        {/* Tabs */}
+        <div className="flex border-b">
+          <button
+            onClick={() => setActiveTab("overview")}
+            className={cn(
+              "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+              activeTab === "overview"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab("kpi")}
+            className={cn(
+              "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+              activeTab === "kpi"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            )}
+          >
+            KPI Report
+          </button>
         </div>
 
-        {/* Quick Actions */}
-        <div className="flex flex-wrap gap-2 border-t pt-4">
-          <Button variant="outline" size="sm" onClick={onEdit}>
-            ✏️ Edit
-          </Button>
-          {developer.isActive && (
-            <Button variant="outline" size="sm" onClick={onDeactivate}>
-              🚫 Deactivate
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              onOpenChange(false);
-              navigate(`/tickets?developer=${developer.id}`);
-            }}
-          >
-            🎫 View Tickets
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              onOpenChange(false);
-              navigate(`/reports?developer=${developer.id}`);
-            }}
-          >
-            📈 View Report
-          </Button>
-        </div>
+        {/* Tab Content */}
+        {activeTab === "overview" && (
+          <>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <StatCard
+                icon="🎫"
+                label="Total Tickets"
+                value={totalTickets}
+                description={`${inProgressTickets} in progress`}
+                className="p-4"
+              />
+              <StatCard
+                icon="✅"
+                label="Completed"
+                value={completedTickets}
+                description={`${completionRate}% completion rate`}
+                className="p-4"
+              />
+              <StatCard
+                icon="⏱️"
+                label="On-Time Delivery"
+                value={`${onTimeRate}%`}
+                description={`${onTimeTickets} of ${completedTickets} on time`}
+                className="p-4"
+              />
+              <StatCard
+                icon="🔄"
+                label="Reopened"
+                value={reopenedTickets}
+                description="Tickets reopened"
+                className="p-4"
+              />
+              <StatCard
+                icon="🐛"
+                label="Total Bugs"
+                value={totalBugs}
+                description={`${resolvedBugs} resolved`}
+                className="p-4"
+              />
+              <StatCard
+                icon="⚠️"
+                label="Developer Errors"
+                value={developerErrorBugs}
+                description="Bugs attributed to developer"
+                className="p-4"
+              />
+            </div>
+
+            {/* Quick Actions */}
+            <div className="flex flex-wrap gap-2 border-t pt-4">
+              <Button variant="outline" size="sm" onClick={onEdit}>
+                ✏️ Edit
+              </Button>
+              {developer.isActive && (
+                <Button variant="outline" size="sm" onClick={onDeactivate}>
+                  🚫 Deactivate
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onOpenChange(false);
+                  navigate(`/tickets?developer=${developer.id}`);
+                }}
+              >
+                🎫 View Tickets
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onOpenChange(false);
+                  navigate(`/reports?developer=${developer.id}`);
+                }}
+              >
+                📈 View Report
+              </Button>
+            </div>
+          </>
+        )}
+
+        {activeTab === "kpi" && (
+          <div className="pt-4">
+            <DeveloperKPI developer={developer} />
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -302,10 +302,15 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 7.4 Developer KPI View
 
-- [ ] Create `DeveloperKPI` component
-- [ ] Individual developer deep-dive
-- [ ] Historical performance graph
-- [ ] Comparison with team average
+- [x] Create `DeveloperKPI` component
+- [x] Individual developer deep-dive:
+  - Average scores (delivery, quality, overall)
+  - Latest month performance metrics
+  - Performance insights and recommendations
+- [x] Historical performance graph (trend chart over last 12 months)
+- [x] Monthly breakdown table (last 12 months with detailed metrics)
+- [x] Integrated into DeveloperCard with tabbed view (Overview / KPI Report)
+- [ ] Comparison with team average (can be added later)
 
 ### 7.5 Export Functionality
 
