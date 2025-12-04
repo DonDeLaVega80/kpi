@@ -17,7 +17,6 @@ A standalone desktop application for tracking developer performance through tick
 - ✅ Bug CRUD operations (create, resolve, reclassify, auto-link to developer)
 - ✅ React hooks for all entities (useDevelopers, useTickets, useBugs, useKPI)
 - ✅ App shell with sidebar navigation and routing
-- ✅ Dark/light mode toggle with persistence
 - ✅ Common UI components (DataTable, StatCard, StatusBadge, EmptyState, etc.)
 - ✅ Form components with validation (react-hook-form + zod)
 - ✅ Developer list page with search/filter
@@ -52,7 +51,6 @@ A standalone desktop application for tracking developer performance through tick
 - ✅ Settings page with organized sections
 - ✅ KPI Configuration (delivery/quality weights, bug severity penalties)
 - ✅ Data Management (backup, restore, export, import, clear)
-- ✅ Theme toggle (dark/light/system) with persistence
 
 ### Next Up
 
@@ -280,8 +278,7 @@ Comprehensive data management tools:
 
 ### App Preferences
 
-- **Theme Toggle**: Switch between dark, light, or system theme
-- **Theme Persistence**: Your theme preference is saved and restored on app launch
+- **Light Mode Only**: The application uses a clean light theme for optimal readability
 
 ## Data Storage
 

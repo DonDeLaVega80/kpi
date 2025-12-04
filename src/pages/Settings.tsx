@@ -489,7 +489,7 @@ export function Settings() {
           </div>
           <div className="pl-14">
             <p className="text-sm text-muted-foreground">
-              Configure theme, date formats, and other application preferences.
+              Configure date formats and other application preferences.
               <br />
               <span className="text-xs italic">Coming in Phase 9.4</span>
             </p>

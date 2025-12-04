@@ -93,7 +93,7 @@ A step-by-step guide to building the KPI Tool from scratch.
 - [x] Create `Sidebar` component with navigation
 - [x] Create `Header` component
 - [x] Set up React Router for page navigation
-- [x] Implement dark/light mode toggle
+- [x] Configure light mode only (dark mode removed)
 
 ### 2.2 Common UI Components
 
@@ -376,7 +376,7 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 9.4 App Preferences
 
-- [x] Theme toggle (dark/light/system)
+- [x] Light mode only (theme toggle removed)
 
 **Deliverable:** Configurable app settings
 
