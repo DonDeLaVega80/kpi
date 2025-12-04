@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Bug, CreateBugInput, UpdateBugInput } from "@/types";
 import {
+  getAllBugs,
   getBugsByTicket,
   getBugsByDeveloper,
   createBug as createBugApi,
@@ -40,9 +41,8 @@ export function useBugs(options: UseBugsOptions = {}): UseBugsReturn {
       } else if (developerId) {
         data = await getBugsByDeveloper(developerId);
       } else {
-        // No filter provided - return empty array
-        // (we don't have a get_all_bugs endpoint)
-        data = [];
+        // No filter provided - get all bugs
+        data = await getAllBugs();
       }
       setBugs(data);
     } catch (err) {

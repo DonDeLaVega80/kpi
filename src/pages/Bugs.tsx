@@ -17,7 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Bug, BugSeverity, BugType } from "@/types";
+import { BugFormDialog } from "@/components/bugs";
+import type { Bug, BugSeverity, BugType, CreateBugInput, UpdateBugInput } from "@/types";
 
 // Helper to format date for display
 function formatDate(dateStr: string): string {
@@ -61,7 +62,7 @@ export function Bugs() {
   const developerIdFromUrl = searchParams.get("developer") || undefined;
 
   // Fetch bugs based on URL params
-  const { bugs, loading, error, refresh } = useBugs({
+  const { bugs, loading, error, refresh, createBug, updateBug } = useBugs({
     ticketId: ticketIdFromUrl,
     developerId: developerIdFromUrl,
   });
@@ -74,6 +75,10 @@ export function Bugs() {
   const [resolvedFilter, setResolvedFilter] = useState<"all" | "resolved" | "unresolved">("all");
   const [ticketFilter, setTicketFilter] = useState<string>(ticketIdFromUrl || "all");
   const [developerFilter, setDeveloperFilter] = useState<string>(developerIdFromUrl || "all");
+  
+  // Form state
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingBug, setEditingBug] = useState<Bug | undefined>();
 
   // Get ticket title by ID
   const getTicketTitle = (ticketId: string): string => {
@@ -197,12 +202,54 @@ export function Bugs() {
         </span>
       ),
     },
+    {
+      key: "actions",
+      header: "",
+      className: "w-[60px]",
+      cell: (bug) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleEdit(bug);
+          }}
+        >
+          ✏️
+        </Button>
+      ),
+    },
   ];
 
   // Stats
   const totalBugs = bugs.length;
   const unresolvedBugs = bugs.filter((b) => !b.isResolved).length;
   const developerErrorBugs = bugs.filter((b) => b.bugType === "developer_error").length;
+
+  const handleEdit = (bug: Bug) => {
+    setEditingBug(bug);
+    setIsFormOpen(true);
+  };
+
+  const handleCreateOrUpdate = async (data: CreateBugInput | UpdateBugInput) => {
+    if (editingBug) {
+      await updateBug({
+        id: editingBug.id,
+        ...data,
+      } as UpdateBugInput);
+    } else {
+      await createBug(data as CreateBugInput);
+    }
+    setIsFormOpen(false);
+    setEditingBug(undefined);
+  };
+
+  const handleFormClose = (open: boolean) => {
+    setIsFormOpen(open);
+    if (!open) {
+      setEditingBug(undefined);
+    }
+  };
 
   if (error) {
     return (
@@ -241,7 +288,7 @@ export function Bugs() {
             )}
           </p>
         </div>
-        <Button onClick={() => {/* TODO: Open bug form */}}>+ Report Bug</Button>
+        <Button onClick={() => setIsFormOpen(true)}>+ Report Bug</Button>
       </div>
 
       {/* Quick Stats */}
@@ -382,9 +429,19 @@ export function Bugs() {
               ? "Try adjusting your search or filter criteria"
               : "Great news! No bugs have been reported yet.",
           action: (
-            <Button onClick={() => {/* TODO: Open bug form */}}>+ Report Bug</Button>
+            <Button onClick={() => setIsFormOpen(true)}>+ Report Bug</Button>
           ),
         }}
+      />
+
+      {/* Bug Form Dialog */}
+      <BugFormDialog
+        open={isFormOpen}
+        onOpenChange={handleFormClose}
+        onSubmit={handleCreateOrUpdate}
+        bug={editingBug}
+        tickets={tickets}
+        preselectedTicketId={ticketIdFromUrl}
       />
     </div>
   );

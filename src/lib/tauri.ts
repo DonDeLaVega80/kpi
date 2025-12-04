@@ -79,6 +79,10 @@ export async function createBug(data: CreateBugInput): Promise<Bug> {
   return invoke("create_bug", { input: data });
 }
 
+export async function getAllBugs(): Promise<Bug[]> {
+  return invoke("get_all_bugs");
+}
+
 export async function getBugsByTicket(ticketId: string): Promise<Bug[]> {
   return invoke("get_bugs_by_ticket", { ticketId });
 }

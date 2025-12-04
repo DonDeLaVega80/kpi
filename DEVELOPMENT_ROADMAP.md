@@ -199,10 +199,10 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 5.2 Bug Form
 
-- [ ] Create `BugForm` component
-- [ ] Fields: title, description, ticket (dropdown), severity, bug type
-- [ ] Auto-fill developer from selected ticket
-- [ ] **Bug Type Selection** - make this prominent with descriptions:
+- [x] Create `BugForm` component
+- [x] Fields: title, description, ticket (dropdown), severity, bug type
+- [x] Auto-fill developer from selected ticket
+- [x] **Bug Type Selection** - make this prominent with descriptions:
   - Developer Error
   - Conceptual/Requirement Misunderstanding
   - Requirement Change

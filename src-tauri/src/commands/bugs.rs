@@ -93,6 +93,29 @@ pub fn create_bug(state: State<DbState>, input: CreateBugInput) -> Result<Bug, S
     })
 }
 
+/// Get all bugs
+#[tauri::command]
+pub fn get_all_bugs(state: State<DbState>) -> Result<Vec<Bug>, String> {
+    let conn = state.0.lock().map_err(|e| format!("Database lock error: {}", e))?;
+
+    let mut stmt = conn
+        .prepare(
+            "SELECT id, ticket_id, developer_id, reported_by, title, description, 
+                    severity, bug_type, is_resolved, resolved_date, created_at, updated_at
+             FROM bugs
+             ORDER BY created_at DESC",
+        )
+        .map_err(|e| format!("Failed to prepare query: {}", e))?;
+
+    let bugs = stmt
+        .query_map([], |row| parse_bug_row(row))
+        .map_err(|e| format!("Failed to query bugs: {}", e))?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| format!("Failed to collect bugs: {}", e))?;
+
+    Ok(bugs)
+}
+
 /// Get all bugs for a ticket
 #[tauri::command]
 pub fn get_bugs_by_ticket(
