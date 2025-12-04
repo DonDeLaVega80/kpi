@@ -1,51 +1,45 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import { Button } from "@/components/ui/button";
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
-
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
-
+export function App() {
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
+    <main className="min-h-screen bg-background">
+      <div className="container mx-auto py-10">
+        <div className="flex flex-col items-center justify-center space-y-6">
+          <h1 className="text-4xl font-bold tracking-tight">🎯 KPI Tool</h1>
+          <p className="text-muted-foreground text-lg">
+            Developer Performance Tracking
+          </p>
 
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+          <div className="flex gap-4 mt-8">
+            <Button>Get Started</Button>
+            <Button variant="outline">Learn More</Button>
+          </div>
+
+          <div className="mt-12 grid grid-cols-3 gap-6">
+            <div className="rounded-lg border bg-card p-6 text-center">
+              <h3 className="text-2xl font-semibold">👥</h3>
+              <p className="mt-2 font-medium">Developers</p>
+              <p className="text-sm text-muted-foreground">
+                Manage your team
+              </p>
+            </div>
+            <div className="rounded-lg border bg-card p-6 text-center">
+              <h3 className="text-2xl font-semibold">🎫</h3>
+              <p className="mt-2 font-medium">Tickets</p>
+              <p className="text-sm text-muted-foreground">
+                Track assignments
+              </p>
+            </div>
+            <div className="rounded-lg border bg-card p-6 text-center">
+              <h3 className="text-2xl font-semibold">📈</h3>
+              <p className="mt-2 font-medium">Reports</p>
+              <p className="text-sm text-muted-foreground">
+                Monthly KPI stats
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
     </main>
   );
 }
-
-export default App;

@@ -17,10 +17,10 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 0.2 Configure Frontend Tooling
 
-- [ ] Install Tailwind CSS
-- [ ] Install and configure shadcn/ui
-- [ ] Set up path aliases in `tsconfig.json`
-- [ ] Create base folder structure (`components/`, `pages/`, `hooks/`, `types/`, `lib/`)
+- [x] Install Tailwind CSS
+- [x] Install and configure shadcn/ui
+- [x] Set up path aliases in `tsconfig.json`
+- [x] Create base folder structure (`components/`, `pages/`, `hooks/`, `types/`, `lib/`)
 
 ### 0.3 Configure Rust Backend
 
