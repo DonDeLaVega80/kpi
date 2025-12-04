@@ -57,16 +57,16 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 1.2 Ticket Model & CRUD
 
-- [ ] Create `Ticket` struct in Rust
-- [ ] Implement `create_ticket` command
-- [ ] Implement `get_all_tickets` command
-- [ ] Implement `get_tickets_by_developer` command
-- [ ] Implement `update_ticket` command
-- [ ] Implement `update_ticket_status` command
-- [ ] Implement `reopen_ticket` command (increment reopen_count)
-- [ ] Implement `complete_ticket` command (auto-calculate wasOnTime)
-- [ ] Create TypeScript types
-- [ ] Create `useTickets` hook
+- [x] Create `Ticket` struct in Rust
+- [x] Implement `create_ticket` command
+- [x] Implement `get_all_tickets` command
+- [x] Implement `get_tickets_by_developer` command
+- [x] Implement `update_ticket` command
+- [x] Implement `update_ticket_status` command
+- [x] Implement `reopen_ticket` command (increment reopen_count)
+- [x] Implement `complete_ticket` command (auto-calculate wasOnTime)
+- [x] Create TypeScript types
+- [x] Create `useTickets` hook
 
 ### 1.3 Bug Model & CRUD
 
