@@ -282,10 +282,13 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 7.2 Monthly Report Page
 
-- [ ] Create `Reports` page
-- [ ] Month/Year selector
-- [ ] Developer selector (or "All")
-- [ ] Generate report button
+- [x] Create `Reports` page
+- [x] Month/Year selector (dropdowns with current month/year default)
+- [x] Developer selector (dropdown with "All" option)
+- [x] Generate report button (calls `generateMonthlyKPI`)
+- [x] Display generated/stored KPI data
+- [x] Show summary cards (delivery, quality, overall scores)
+- [x] Show trend indicator
 
 ### 7.3 Report Components
 
