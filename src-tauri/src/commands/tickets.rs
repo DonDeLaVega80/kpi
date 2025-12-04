@@ -237,7 +237,7 @@ pub fn update_ticket_status(
     get_ticket_by_id_internal(&conn, &id)
 }
 
-/// Complete a ticket (auto-calculates if on time)
+/// Complete a ticket (auto-calculates if on time, accumulates actual hours)
 #[tauri::command]
 pub fn complete_ticket(
     state: State<DbState>,
@@ -260,12 +260,19 @@ pub fn complete_ticket(
     
     let _was_on_time = completed_date <= due_date;
 
+    // Accumulate actual hours: add new hours to existing hours
+    let total_actual_hours = match (actual_hours, current.actual_hours) {
+        (Some(new), Some(existing)) => Some(existing + new),  // Add to existing
+        (Some(new), None) => Some(new),                        // First time completing
+        (None, existing) => existing,                          // Keep existing if no new hours provided
+    };
+
     conn.execute(
-        "UPDATE tickets SET status = ?1, completed_date = ?2, actual_hours = COALESCE(?3, actual_hours), updated_at = ?4 WHERE id = ?5",
+        "UPDATE tickets SET status = ?1, completed_date = ?2, actual_hours = ?3, updated_at = ?4 WHERE id = ?5",
         (
             TicketStatus::Completed.as_str(),
             &today,
-            &actual_hours,
+            &total_actual_hours,
             &now,
             &id,
         ),
@@ -282,7 +289,7 @@ pub fn complete_ticket(
         completed_date: Some(today),
         status: TicketStatus::Completed,
         estimated_hours: current.estimated_hours,
-        actual_hours: actual_hours.or(current.actual_hours),
+        actual_hours: total_actual_hours,
         complexity: current.complexity,
         reopen_count: current.reopen_count,
         created_at: current.created_at,

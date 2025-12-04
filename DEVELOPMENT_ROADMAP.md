@@ -153,36 +153,36 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 4.1 Ticket List Page
 
-- [ ] Create `Tickets` page
-- [ ] Display tickets in table view
-- [ ] Show: title, developer, due date, status, complexity
-- [ ] Color-code overdue tickets
-- [ ] Filter by: status, developer, date range
-- [ ] Sort by: due date, assigned date, status
+- [x] Create `Tickets` page
+- [x] Display tickets in table view
+- [x] Show: title, developer, due date, status, complexity
+- [x] Color-code overdue tickets
+- [x] Filter by: status, developer, date range
+- [x] Sort by: due date, assigned date, status
 
 ### 4.2 Ticket Form
 
-- [ ] Create `TicketForm` component
-- [ ] Fields: title, description, developer (dropdown), due date, complexity, estimated hours
-- [ ] Auto-set assigned date to today
-- [ ] Validation: required fields, due date >= today
+- [x] Create `TicketForm` component
+- [x] Fields: title, description, developer (dropdown), due date, complexity, estimated hours
+- [x] Auto-set assigned date to today
+- [x] Validation: required fields, due date >= today
 
 ### 4.3 Ticket Card & Actions
 
-- [ ] Create `TicketCard` component for detail view
-- [ ] Show full ticket info + history
-- [ ] Status change buttons (workflow)
-- [ ] "Mark Complete" action (calculates on-time)
-- [ ] "Reopen" action (increments counter)
-- [ ] Show linked bugs
+- [x] Create `TicketCard` component for detail view
+- [x] Show full ticket info + history
+- [x] Status change buttons (workflow)
+- [x] "Mark Complete" action (calculates on-time)
+- [x] "Reopen" action (increments counter)
+- [x] Show linked bugs
 
 ### 4.4 Ticket Timeline (Optional)
 
-- [ ] Create `TicketTimeline` component
-- [ ] Visual timeline of ticket lifecycle
-- [ ] Show status changes with timestamps
+- [x] Create `TicketTimeline` component
+- [x] Visual timeline of ticket lifecycle
+- [x] Show status changes with timestamps
 
-**Deliverable:** Full ticket management workflow
+**Deliverable:** Full ticket management workflow ✅
 
 ---
 
