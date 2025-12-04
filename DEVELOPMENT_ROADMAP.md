@@ -342,9 +342,9 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 8.3 Quick Actions
 
-- [ ] "Add Ticket" quick button
-- [ ] "Report Bug" quick button
-- [ ] Links to detailed views
+- [x] "Add Ticket" quick button
+- [x] "Report Bug" quick button
+- [x] Links to detailed views
 
 **Deliverable:** Informative dashboard homepage
 

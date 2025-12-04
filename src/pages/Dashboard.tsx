@@ -5,13 +5,17 @@ import { useTickets } from "@/hooks/useTickets";
 import { useBugs } from "@/hooks/useBugs";
 import { getCurrentMonthKPI, getKPIHistory } from "@/lib/tauri";
 import { MiniTrendChart } from "@/components/ui/mini-trend-chart";
+import { TicketFormDialog } from "@/components/tickets";
+import { BugFormDialog } from "@/components/bugs";
+import { Button } from "@/components/ui/button";
 import type { MonthlyKPI } from "@/types";
+import type { CreateTicketInput, CreateBugInput } from "@/types";
 
 export function Dashboard() {
   const navigate = useNavigate();
   const { developers, loading: loadingDevs } = useDevelopers();
-  const { tickets, loading: loadingTickets } = useTickets();
-  const { bugs, loading: loadingBugs } = useBugs();
+  const { tickets, loading: loadingTickets, createTicket } = useTickets();
+  const { bugs, loading: loadingBugs, createBug } = useBugs();
 
   const [kpiScores, setKpiScores] = useState<MonthlyKPI[]>([]);
   const [kpiHistory, setKpiHistory] = useState<MonthlyKPI[]>([]);
@@ -19,10 +23,35 @@ export function Dashboard() {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [kpiError, setKpiError] = useState<string | null>(null);
 
+  // Form dialog states
+  const [isTicketFormOpen, setIsTicketFormOpen] = useState(false);
+  const [isBugFormOpen, setIsBugFormOpen] = useState(false);
+
   const activeDevelopers = developers.filter((d) => d.isActive);
   const openTickets = tickets.filter((t) => t.status !== "completed");
   const completedTickets = tickets.filter((t) => t.status === "completed");
   const unresolvedBugs = bugs.filter((b) => !b.isResolved);
+
+  // Handlers for quick actions
+  const handleCreateTicket = async (data: CreateTicketInput) => {
+    try {
+      await createTicket(data);
+      setIsTicketFormOpen(false);
+    } catch (error) {
+      console.error("Failed to create ticket:", error);
+      // Dialog will stay open on error
+    }
+  };
+
+  const handleCreateBug = async (data: CreateBugInput) => {
+    try {
+      await createBug(data);
+      setIsBugFormOpen(false);
+    } catch (error) {
+      console.error("Failed to create bug:", error);
+      // Dialog will stay open on error
+    }
+  };
 
   // Fetch KPI for all active developers
   useEffect(() => {
@@ -577,35 +606,40 @@ export function Dashboard() {
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10 text-xl">
               👥
             </div>
-            <div>
+            <div className="flex-1">
               <p className="text-sm font-medium">Manage Developers</p>
               <p className="text-xs text-muted-foreground">Add or edit team members</p>
             </div>
           </div>
-          <div
-            onClick={() => navigate("/tickets")}
-            className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
+          
+          <Button
+            variant="outline"
+            onClick={() => setIsTicketFormOpen(true)}
+            className="flex items-center gap-3 p-3 h-auto justify-start hover:bg-muted/50"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-500/10 text-xl">
               🎫
             </div>
-            <div>
-              <p className="text-sm font-medium">Create Ticket</p>
+            <div className="flex-1 text-left">
+              <p className="text-sm font-medium">Add Ticket</p>
               <p className="text-xs text-muted-foreground">Assign new work</p>
             </div>
-          </div>
-          <div
-            onClick={() => navigate("/bugs")}
-            className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
+          </Button>
+          
+          <Button
+            variant="outline"
+            onClick={() => setIsBugFormOpen(true)}
+            className="flex items-center gap-3 p-3 h-auto justify-start hover:bg-muted/50"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/10 text-xl">
               🐛
             </div>
-            <div>
+            <div className="flex-1 text-left">
               <p className="text-sm font-medium">Report Bug</p>
               <p className="text-xs text-muted-foreground">Track issues</p>
             </div>
-          </div>
+          </Button>
+          
           <div
             onClick={() => navigate("/reports")}
             className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
@@ -613,13 +647,29 @@ export function Dashboard() {
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10 text-xl">
               📊
             </div>
-            <div>
+            <div className="flex-1">
               <p className="text-sm font-medium">View Reports</p>
               <p className="text-xs text-muted-foreground">Detailed KPI analysis</p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Ticket Form Dialog */}
+      <TicketFormDialog
+        open={isTicketFormOpen}
+        onOpenChange={setIsTicketFormOpen}
+        onSubmit={handleCreateTicket}
+        developers={activeDevelopers}
+      />
+
+      {/* Bug Form Dialog */}
+      <BugFormDialog
+        open={isBugFormOpen}
+        onOpenChange={setIsBugFormOpen}
+        onSubmit={handleCreateBug}
+        tickets={tickets}
+      />
     </div>
   );
 }
