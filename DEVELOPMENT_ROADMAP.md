@@ -24,17 +24,17 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 0.3 Configure Rust Backend
 
-- [ ] Add SQLite dependencies to `Cargo.toml` (rusqlite or sqlx)
-- [ ] Add serde for JSON serialization
-- [ ] Add uuid for ID generation
-- [ ] Create base folder structure (`commands/`, `db/`, `models/`, `services/`)
+- [x] Add SQLite dependencies to `Cargo.toml` (rusqlite or sqlx)
+- [x] Add serde for JSON serialization
+- [x] Add uuid for ID generation
+- [x] Create base folder structure (`commands/`, `db/`, `models/`, `services/`)
 
 ### 0.4 Database Setup
 
-- [ ] Create database initialization function
-- [ ] Set up migrations system
-- [ ] Configure app data directory (`~/Library/Application Support/kpi-tool/`)
-- [ ] Write initial migration (create all tables)
+- [x] Create database initialization function
+- [x] Set up migrations system
+- [x] Configure app data directory (`~/Library/Application Support/kpi-tool/`)
+- [x] Write initial migration (create all tables)
 
 **Deliverable:** Empty app launches, database file created on first run
 

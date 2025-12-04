@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "tauri-app",
+  "productName": "KPI Tool",
   "version": "0.1.0",
-  "identifier": "com.ranto.tauri-app",
+  "identifier": "com.kpi-tool.app",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,9 +12,11 @@
   "app": {
     "windows": [
       {
-        "title": "tauri-app",
-        "width": 800,
-        "height": 600
+        "title": "KPI Tool",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 900,
+        "minHeight": 600
       }
     ],
     "security": {
