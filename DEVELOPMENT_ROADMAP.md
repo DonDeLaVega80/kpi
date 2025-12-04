@@ -97,13 +97,13 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 2.2 Common UI Components
 
-- [ ] Set up shadcn/ui base components (Button, Input, Select, Dialog, etc.)
-- [ ] Create `DataTable` component for lists
-- [ ] Create `StatCard` component for metrics display
-- [ ] Create `StatusBadge` component (for ticket/bug status)
-- [ ] Create `EmptyState` component
-- [ ] Create `LoadingSpinner` component
-- [ ] Create `ConfirmDialog` component
+- [x] Set up shadcn/ui base components (Button, Input, Select, Dialog, etc.)
+- [x] Create `DataTable` component for lists
+- [x] Create `StatCard` component for metrics display
+- [x] Create `StatusBadge` component (for ticket/bug status)
+- [x] Create `EmptyState` component
+- [x] Create `LoadingSpinner` component
+- [x] Create `ConfirmDialog` component
 
 ### 2.3 Form Components
 
