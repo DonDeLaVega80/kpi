@@ -3,11 +3,20 @@ import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { StatusBadge, ConfirmDialog } from "@/components/ui";
+import { StatusBadge } from "@/components/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { Bug, BugType, Ticket, Developer } from "@/types";
 
@@ -15,10 +24,16 @@ interface BugCardProps {
   bug: Bug;
   ticket?: Ticket;
   developer?: Developer;
+  /** Developer who resolved the bug (looked up from resolvedByDeveloperId) */
+  resolvedByDeveloper?: Developer;
+  /** All available developers for the resolve dialog */
+  allDevelopers: Developer[];
+  /** All available tickets for linking fix ticket */
+  allTickets: Ticket[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEdit: () => void;
-  onResolve: () => Promise<void>;
+  onResolve: (resolvedByDeveloperId?: string, fixTicketId?: string, fixHours?: number) => Promise<void>;
   onReclassify: (bugType: BugType) => Promise<void>;
 }
 
@@ -108,6 +123,9 @@ export function BugCard({
   bug,
   ticket,
   developer,
+  resolvedByDeveloper,
+  allDevelopers,
+  allTickets,
   open,
   onOpenChange,
   onEdit,
@@ -120,14 +138,37 @@ export function BugCard({
   const [isResolving, setIsResolving] = useState(false);
   const [isReclassifying, setIsReclassifying] = useState(false);
   const [selectedBugType, setSelectedBugType] = useState<BugType>(bug.bugType);
+  
+  // Resolve dialog state
+  const [selectedResolverId, setSelectedResolverId] = useState<string>("");
+  const [selectedFixTicketId, setSelectedFixTicketId] = useState<string>("");
+  const [fixHours, setFixHours] = useState<string>("");
 
   const currentBugType = bugTypes.find((t) => t.value === bug.bugType);
+
+  // Get fix ticket info (for display in bug card)
+  const fixTicket = bug.fixTicketId 
+    ? allTickets.find(t => t.id === bug.fixTicketId) 
+    : undefined;
+
+  // Get selected fix ticket info (for resolve dialog)
+  const selectedFixTicket = selectedFixTicketId 
+    ? allTickets.find(t => t.id === selectedFixTicketId)
+    : undefined;
 
   const handleResolve = async () => {
     setIsResolving(true);
     try {
-      await onResolve();
+      const hours = fixHours ? parseFloat(fixHours) : undefined;
+      await onResolve(
+        selectedResolverId || undefined,
+        selectedFixTicketId || undefined,
+        hours
+      );
       setShowResolveDialog(false);
+      setSelectedResolverId("");
+      setSelectedFixTicketId("");
+      setFixHours("");
     } finally {
       setIsResolving(false);
     }
@@ -146,6 +187,8 @@ export function BugCard({
       setIsReclassifying(false);
     }
   };
+
+  const activeDevelopers = allDevelopers.filter(d => d.isActive);
 
   return (
     <>
@@ -182,12 +225,15 @@ export function BugCard({
           {/* Info Grid */}
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-muted-foreground">Ticket:</span>
+              <span className="text-muted-foreground">Original Ticket:</span>
               <p className="font-medium">{ticket?.title || "Unknown"}</p>
             </div>
             <div>
-              <span className="text-muted-foreground">Developer:</span>
-              <p className="font-medium">{developer?.name || "Unknown"}</p>
+              <span className="text-muted-foreground">Introduced By:</span>
+              <p className="font-medium text-red-600 dark:text-red-400">
+                {developer?.name || "Unknown"}
+                <span className="text-xs text-muted-foreground ml-1">(KPI impact)</span>
+              </p>
             </div>
             <div>
               <span className="text-muted-foreground">Reported:</span>
@@ -198,6 +244,22 @@ export function BugCard({
                 <span className="text-muted-foreground">Resolved:</span>
                 <p className="font-medium text-green-600 dark:text-green-400">
                   {formatDate(bug.resolvedDate)}
+                </p>
+              </div>
+            )}
+            {bug.isResolved && resolvedByDeveloper && (
+              <div>
+                <span className="text-muted-foreground">Resolved By:</span>
+                <p className="font-medium text-green-600 dark:text-green-400">
+                  {resolvedByDeveloper.name}
+                </p>
+              </div>
+            )}
+            {bug.isResolved && fixTicket && (
+              <div>
+                <span className="text-muted-foreground">Fix Ticket:</span>
+                <p className="font-medium text-blue-600 dark:text-blue-400">
+                  {fixTicket.title}
                 </p>
               </div>
             )}
@@ -279,17 +341,121 @@ export function BugCard({
         </DialogContent>
       </Dialog>
 
-      {/* Resolve Confirmation */}
-      <ConfirmDialog
-        open={showResolveDialog}
-        onOpenChange={setShowResolveDialog}
-        title="Resolve Bug"
-        description={`Are you sure you want to mark "${bug.title}" as resolved? This indicates the bug has been fixed.`}
-        confirmText="Resolve"
-        variant="default"
-        onConfirm={handleResolve}
-        loading={isResolving}
-      />
+      {/* Resolve Dialog with Resolver Selection */}
+      <Dialog open={showResolveDialog} onOpenChange={setShowResolveDialog}>
+        <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle>Resolve Bug</DialogTitle>
+            <DialogDescription>
+              Mark this bug as resolved and optionally specify who fixed it.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="rounded-lg bg-muted/50 p-3">
+              <p className="text-sm font-medium">{bug.title}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                KPI impact will remain on: <span className="font-medium">{developer?.name || "Unknown"}</span>
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Resolved By (optional)</label>
+              <Select 
+                value={selectedResolverId || "none"} 
+                onValueChange={(v) => setSelectedResolverId(v === "none" ? "" : v)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select who fixed this bug" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Not specified</SelectItem>
+                  {activeDevelopers.map((dev) => (
+                    <SelectItem key={dev.id} value={dev.id}>
+                      {dev.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                The developer who actually fixed this bug (can be different from who introduced it)
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Fix Ticket (optional)</label>
+              <Select 
+                value={selectedFixTicketId || "none"} 
+                onValueChange={(v) => {
+                  setSelectedFixTicketId(v === "none" ? "" : v);
+                  // Clear hours when ticket changes
+                  setFixHours("");
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Link to a fix ticket" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No linked ticket</SelectItem>
+                  {allTickets.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.title.length > 40 ? t.title.slice(0, 40) + "..." : t.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                If a new ticket was created to fix this bug, link it here
+              </p>
+            </div>
+
+            {/* Time spent on fix - only shown when fix ticket is selected */}
+            {selectedFixTicketId && selectedResolverId && (
+              <div className="space-y-2 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-950/30">
+                <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                  <span>⏱️</span>
+                  <span className="text-sm font-medium">Time Tracking</span>
+                </div>
+                <p className="text-xs text-blue-600 dark:text-blue-400 mb-2">
+                  The fix ticket "{selectedFixTicket?.title.slice(0, 30)}..." will be reassigned to {allDevelopers.find(d => d.id === selectedResolverId)?.name || "the resolver"}.
+                </p>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium">Hours spent on fix</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    value={fixHours}
+                    onChange={(e) => setFixHours(e.target.value)}
+                    placeholder="e.g., 2.5"
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Hours will be added to the fix ticket's actual hours (for KPI tracking)
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowResolveDialog(false)}
+              disabled={isResolving}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleResolve}
+              disabled={isResolving}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {isResolving ? "Resolving..." : "Resolve Bug"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Reclassify Dialog */}
       <Dialog open={showReclassifyDialog} onOpenChange={setShowReclassifyDialog}>
@@ -350,4 +516,3 @@ export function BugCard({
     </>
   );
 }
-

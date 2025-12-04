@@ -21,7 +21,7 @@ interface UseBugsReturn {
   refresh: () => Promise<void>;
   createBug: (input: CreateBugInput) => Promise<Bug>;
   updateBug: (input: UpdateBugInput) => Promise<Bug>;
-  resolveBug: (id: string) => Promise<Bug>;
+  resolveBug: (id: string, resolvedByDeveloperId?: string, fixTicketId?: string, fixHours?: number) => Promise<Bug>;
 }
 
 export function useBugs(options: UseBugsOptions = {}): UseBugsReturn {
@@ -75,8 +75,8 @@ export function useBugs(options: UseBugsOptions = {}): UseBugsReturn {
   );
 
   const resolveBug = useCallback(
-    async (id: string): Promise<Bug> => {
-      const bug = await resolveBugApi(id);
+    async (id: string, resolvedByDeveloperId?: string, fixTicketId?: string, fixHours?: number): Promise<Bug> => {
+      const bug = await resolveBugApi(id, resolvedByDeveloperId, fixTicketId, fixHours);
       await refresh();
       return bug;
     },

@@ -273,9 +273,9 @@ export function Bugs() {
     }
   };
 
-  const handleResolve = async () => {
+  const handleResolve = async (resolvedByDeveloperId?: string, fixTicketId?: string, fixHours?: number) => {
     if (!selectedBug) return;
-    await resolveBug(selectedBug.id);
+    await resolveBug(selectedBug.id, resolvedByDeveloperId, fixTicketId, fixHours);
     setIsCardOpen(false);
     setSelectedBug(undefined);
   };
@@ -497,6 +497,13 @@ export function Bugs() {
           bug={selectedBug}
           ticket={getTicket(selectedBug.ticketId)}
           developer={getDeveloper(selectedBug.developerId)}
+          resolvedByDeveloper={
+            selectedBug.resolvedByDeveloperId 
+              ? getDeveloper(selectedBug.resolvedByDeveloperId) 
+              : undefined
+          }
+          allDevelopers={developers}
+          allTickets={tickets}
           open={isCardOpen}
           onOpenChange={handleCardClose}
           onEdit={handleEditFromCard}

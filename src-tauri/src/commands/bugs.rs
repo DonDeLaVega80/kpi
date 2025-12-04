@@ -19,8 +19,10 @@ fn parse_bug_row(row: &rusqlite::Row) -> Result<Bug, rusqlite::Error> {
         bug_type: BugType::from_str(&bug_type_str).unwrap_or(BugType::DeveloperError),
         is_resolved: row.get(8)?,
         resolved_date: row.get(9)?,
-        created_at: row.get(10)?,
-        updated_at: row.get(11)?,
+        resolved_by_developer_id: row.get(10)?,
+        fix_ticket_id: row.get(11)?,
+        created_at: row.get(12)?,
+        updated_at: row.get(13)?,
     })
 }
 
@@ -28,7 +30,8 @@ fn parse_bug_row(row: &rusqlite::Row) -> Result<Bug, rusqlite::Error> {
 fn get_bug_by_id_internal(conn: &rusqlite::Connection, id: &str) -> Result<Bug, String> {
     conn.query_row(
         "SELECT id, ticket_id, developer_id, reported_by, title, description, 
-                severity, bug_type, is_resolved, resolved_date, created_at, updated_at
+                severity, bug_type, is_resolved, resolved_date, 
+                resolved_by_developer_id, fix_ticket_id, created_at, updated_at
          FROM bugs
          WHERE id = ?1",
         [id],
@@ -47,6 +50,7 @@ pub fn create_bug(state: State<DbState>, input: CreateBugInput) -> Result<Bug, S
     let bug_type = BugType::from_str(&input.bug_type)?;
 
     // Verify ticket exists and get developer_id from ticket
+    // This developer_id is the one who introduced the bug (KPI impact applies here)
     let developer_id: String = conn
         .query_row(
             "SELECT developer_id FROM tickets WHERE id = ?1",
@@ -88,6 +92,8 @@ pub fn create_bug(state: State<DbState>, input: CreateBugInput) -> Result<Bug, S
         bug_type,
         is_resolved: false,
         resolved_date: None,
+        resolved_by_developer_id: None,
+        fix_ticket_id: None,
         created_at: now.clone(),
         updated_at: now,
     })
@@ -101,7 +107,8 @@ pub fn get_all_bugs(state: State<DbState>) -> Result<Vec<Bug>, String> {
     let mut stmt = conn
         .prepare(
             "SELECT id, ticket_id, developer_id, reported_by, title, description, 
-                    severity, bug_type, is_resolved, resolved_date, created_at, updated_at
+                    severity, bug_type, is_resolved, resolved_date,
+                    resolved_by_developer_id, fix_ticket_id, created_at, updated_at
              FROM bugs
              ORDER BY created_at DESC",
         )
@@ -127,7 +134,8 @@ pub fn get_bugs_by_ticket(
     let mut stmt = conn
         .prepare(
             "SELECT id, ticket_id, developer_id, reported_by, title, description, 
-                    severity, bug_type, is_resolved, resolved_date, created_at, updated_at
+                    severity, bug_type, is_resolved, resolved_date,
+                    resolved_by_developer_id, fix_ticket_id, created_at, updated_at
              FROM bugs
              WHERE ticket_id = ?1
              ORDER BY created_at DESC",
@@ -143,7 +151,7 @@ pub fn get_bugs_by_ticket(
     Ok(bugs)
 }
 
-/// Get all bugs for a developer
+/// Get all bugs for a developer (bugs they introduced - affects their KPI)
 #[tauri::command]
 pub fn get_bugs_by_developer(
     state: State<DbState>,
@@ -154,7 +162,8 @@ pub fn get_bugs_by_developer(
     let mut stmt = conn
         .prepare(
             "SELECT id, ticket_id, developer_id, reported_by, title, description, 
-                    severity, bug_type, is_resolved, resolved_date, created_at, updated_at
+                    severity, bug_type, is_resolved, resolved_date,
+                    resolved_by_developer_id, fix_ticket_id, created_at, updated_at
              FROM bugs
              WHERE developer_id = ?1
              ORDER BY created_at DESC",
@@ -201,10 +210,27 @@ pub fn update_bug(state: State<DbState>, input: UpdateBugInput) -> Result<Bug, S
         current.resolved_date
     };
 
+    // Handle resolved_by_developer_id
+    let resolved_by_developer_id = if is_resolved && !current.is_resolved {
+        // If newly resolving, use provided resolver or keep None
+        input.resolved_by_developer_id.or(current.resolved_by_developer_id)
+    } else if !is_resolved {
+        // If unresolving, clear the resolver
+        None
+    } else {
+        // Keep existing or update with new value
+        input.resolved_by_developer_id.or(current.resolved_by_developer_id)
+    };
+
+    // Handle fix_ticket_id
+    let fix_ticket_id = input.fix_ticket_id.or(current.fix_ticket_id);
+
     conn.execute(
         "UPDATE bugs
-         SET title = ?1, description = ?2, severity = ?3, bug_type = ?4, is_resolved = ?5, resolved_date = ?6, updated_at = ?7
-         WHERE id = ?8",
+         SET title = ?1, description = ?2, severity = ?3, bug_type = ?4, 
+             is_resolved = ?5, resolved_date = ?6, resolved_by_developer_id = ?7, 
+             fix_ticket_id = ?8, updated_at = ?9
+         WHERE id = ?10",
         (
             &title,
             &description,
@@ -212,6 +238,8 @@ pub fn update_bug(state: State<DbState>, input: UpdateBugInput) -> Result<Bug, S
             bug_type.as_str(),
             is_resolved,
             &resolved_date,
+            &resolved_by_developer_id,
+            &fix_ticket_id,
             &now,
             &input.id,
         ),
@@ -229,14 +257,24 @@ pub fn update_bug(state: State<DbState>, input: UpdateBugInput) -> Result<Bug, S
         bug_type,
         is_resolved,
         resolved_date,
+        resolved_by_developer_id,
+        fix_ticket_id,
         created_at: current.created_at,
         updated_at: now,
     })
 }
 
-/// Resolve a bug
+/// Resolve a bug with optional resolver info
+/// If fix_ticket_id is provided along with resolved_by_developer_id,
+/// the fix ticket will be reassigned to the resolver and hours will be added
 #[tauri::command]
-pub fn resolve_bug(state: State<DbState>, id: String) -> Result<Bug, String> {
+pub fn resolve_bug(
+    state: State<DbState>, 
+    id: String,
+    resolved_by_developer_id: Option<String>,
+    fix_ticket_id: Option<String>,
+    fix_hours: Option<f64>,
+) -> Result<Bug, String> {
     let conn = state.0.lock().map_err(|e| format!("Database lock error: {}", e))?;
 
     // Get current bug
@@ -249,9 +287,48 @@ pub fn resolve_bug(state: State<DbState>, id: String) -> Result<Bug, String> {
     let now = Utc::now().to_rfc3339();
     let today = Utc::now().format("%Y-%m-%d").to_string();
 
+    // If we have a fix ticket, complete it and optionally reassign to resolver
+    if let Some(ref ticket_id) = fix_ticket_id {
+        // Get current actual_hours from the ticket
+        let current_hours: Option<f64> = conn
+            .query_row(
+                "SELECT actual_hours FROM tickets WHERE id = ?1",
+                [ticket_id],
+                |row| row.get(0),
+            )
+            .map_err(|e| format!("Failed to get ticket hours: {}", e))?;
+
+        // Calculate new total hours (accumulate)
+        let new_hours = if let Some(add_hours) = fix_hours {
+            Some(current_hours.unwrap_or(0.0) + add_hours)
+        } else {
+            current_hours
+        };
+
+        // If we have a resolver, reassign the ticket to them
+        // Also mark the ticket as completed with today's date
+        if let Some(ref resolver_id) = resolved_by_developer_id {
+            conn.execute(
+                "UPDATE tickets SET developer_id = ?1, actual_hours = ?2, status = 'completed', completed_date = ?3, updated_at = ?4 WHERE id = ?5",
+                (resolver_id, new_hours, &today, &now, ticket_id),
+            )
+            .map_err(|e| format!("Failed to complete fix ticket: {}", e))?;
+        } else {
+            // No resolver specified, just complete the ticket with hours
+            conn.execute(
+                "UPDATE tickets SET actual_hours = ?1, status = 'completed', completed_date = ?2, updated_at = ?3 WHERE id = ?4",
+                (new_hours, &today, &now, ticket_id),
+            )
+            .map_err(|e| format!("Failed to complete fix ticket: {}", e))?;
+        }
+    }
+
+    // Update the bug as resolved
     conn.execute(
-        "UPDATE bugs SET is_resolved = TRUE, resolved_date = ?1, updated_at = ?2 WHERE id = ?3",
-        (&today, &now, &id),
+        "UPDATE bugs SET is_resolved = TRUE, resolved_date = ?1, 
+         resolved_by_developer_id = ?2, fix_ticket_id = ?3, updated_at = ?4 
+         WHERE id = ?5",
+        (&today, &resolved_by_developer_id, &fix_ticket_id, &now, &id),
     )
     .map_err(|e| format!("Failed to resolve bug: {}", e))?;
 
@@ -266,6 +343,8 @@ pub fn resolve_bug(state: State<DbState>, id: String) -> Result<Bug, String> {
         bug_type: current.bug_type,
         is_resolved: true,
         resolved_date: Some(today),
+        resolved_by_developer_id,
+        fix_ticket_id,
         created_at: current.created_at,
         updated_at: now,
     })

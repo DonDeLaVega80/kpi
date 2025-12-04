@@ -68,6 +68,7 @@ impl BugType {
 pub struct Bug {
     pub id: String,
     pub ticket_id: String,
+    /// The developer who introduced the bug (KPI impact applies to this developer)
     pub developer_id: String,
     pub reported_by: Option<String>,
     pub title: String,
@@ -76,6 +77,10 @@ pub struct Bug {
     pub bug_type: BugType,
     pub is_resolved: bool,
     pub resolved_date: Option<String>,
+    /// The developer who resolved/fixed the bug (can be different from developer_id)
+    pub resolved_by_developer_id: Option<String>,
+    /// The ticket created to fix this bug (optional)
+    pub fix_ticket_id: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -100,5 +105,9 @@ pub struct UpdateBugInput {
     pub severity: Option<String>,
     pub bug_type: Option<String>,
     pub is_resolved: Option<bool>,
+    /// The developer who resolved the bug (set when resolving)
+    pub resolved_by_developer_id: Option<String>,
+    /// The ticket created to fix this bug (optional)
+    pub fix_ticket_id: Option<String>,
 }
 

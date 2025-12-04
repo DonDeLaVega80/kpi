@@ -10,6 +10,7 @@ export type BugType =
 export interface Bug {
   id: string;
   ticketId: string;
+  /** The developer who introduced the bug (KPI impact applies to this developer) */
   developerId: string;
   reportedBy?: string;
   title: string;
@@ -18,6 +19,10 @@ export interface Bug {
   bugType: BugType;
   isResolved: boolean;
   resolvedDate?: string;
+  /** The developer who resolved/fixed the bug (can be different from developerId) */
+  resolvedByDeveloperId?: string;
+  /** The ticket created to fix this bug (optional) */
+  fixTicketId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -38,4 +43,8 @@ export interface UpdateBugInput {
   severity?: BugSeverity;
   bugType?: BugType;
   isResolved?: boolean;
+  /** The developer who resolved the bug */
+  resolvedByDeveloperId?: string;
+  /** The ticket created to fix this bug */
+  fixTicketId?: string;
 }

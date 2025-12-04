@@ -95,8 +95,19 @@ export async function updateBug(data: UpdateBugInput): Promise<Bug> {
   return invoke("update_bug", { input: data });
 }
 
-export async function resolveBug(id: string): Promise<Bug> {
-  return invoke("resolve_bug", { id });
+export async function resolveBug(
+  id: string,
+  resolvedByDeveloperId?: string,
+  fixTicketId?: string,
+  fixHours?: number
+): Promise<Bug> {
+  // Ensure we pass null instead of undefined for Tauri/serde compatibility
+  return invoke("resolve_bug", { 
+    id, 
+    resolvedByDeveloperId: resolvedByDeveloperId || null,
+    fixTicketId: fixTicketId || null,
+    fixHours: fixHours ?? null
+  });
 }
 
 // KPI commands
