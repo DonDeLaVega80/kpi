@@ -395,9 +395,9 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 10.2 Loading States
 
-- [ ] Add loading indicators to all data fetches
-- [ ] Skeleton loaders for lists
-- [ ] Disable buttons during operations
+- [x] Add loading indicators to all data fetches
+- [x] Skeleton loaders for lists
+- [x] Disable buttons during operations
 
 ### 10.3 Edge Cases
 

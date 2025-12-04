@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "./empty-state";
-import { LoadingSpinner } from "./loading-spinner";
+import { TableSkeleton } from "./table-skeleton";
 
 export interface Column<T> {
   key: string;
@@ -39,11 +39,7 @@ export function DataTable<T>({
   getRowKey,
 }: DataTableProps<T>) {
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <LoadingSpinner />
-      </div>
-    );
+    return <TableSkeleton rows={5} columns={columns.length} />;
   }
 
   if (data.length === 0 && emptyState) {
