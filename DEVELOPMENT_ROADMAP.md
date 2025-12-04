@@ -356,8 +356,8 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 9.1 Settings Page
 
-- [ ] Create `Settings` page
-- [ ] Organize into sections
+- [x] Create `Settings` page
+- [x] Organize into sections
 
 ### 9.2 KPI Configuration
 

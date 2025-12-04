@@ -13,6 +13,7 @@ const navItems: NavItem[] = [
   { label: "Tickets", href: "/tickets", icon: "🎫" },
   { label: "Bugs", href: "/bugs", icon: "🐛" },
   { label: "Reports", href: "/reports", icon: "📈" },
+  { label: "Settings", href: "/settings", icon: "⚙️" },
 ];
 
 export function Sidebar() {
@@ -49,7 +50,7 @@ export function Sidebar() {
       <div className="border-t border-border p-4">
         <div className="text-xs text-muted-foreground">
           <p>KPI Tool v0.1.0</p>
-          <p className="mt-1">Phase 2 - UI Foundation</p>
+          <p className="mt-1">Phase 9 - Settings</p>
         </div>
       </div>
     </aside>

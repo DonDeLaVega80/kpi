@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MainLayout } from "@/components/layout";
-import { Dashboard, Developers, Tickets, Bugs, Reports } from "@/pages";
+import { Dashboard, Developers, Tickets, Bugs, Reports, Settings } from "@/pages";
 
 export function App() {
   return (
@@ -12,6 +12,7 @@ export function App() {
           <Route path="tickets" element={<Tickets />} />
           <Route path="bugs" element={<Bugs />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </BrowserRouter>
