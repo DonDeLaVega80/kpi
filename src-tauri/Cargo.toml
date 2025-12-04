@@ -1,8 +1,9 @@
 [package]
 name = "kpi-tool"
 version = "0.1.0"
-description = "Developer KPI Tracking Tool"
-authors = ["you"]
+description = "A standalone desktop application for tracking developer performance through ticket management, bug tracking, and monthly KPI reporting"
+authors = ["KPI Tool Contributors"]
+license = "MIT"
 edition = "2021"
 
 [lib]

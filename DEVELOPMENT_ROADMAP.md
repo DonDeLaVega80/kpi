@@ -421,9 +421,9 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 11.1 App Metadata
 
-- [ ] Set app name, version in `tauri.conf.json`
-- [ ] Create app icon (multiple sizes)
-- [ ] Set bundle identifier
+- [x] Set app name, version in `tauri.conf.json`
+- [x] Create app icon (multiple sizes)
+- [x] Set bundle identifier
 
 ### 11.2 macOS Build
 
