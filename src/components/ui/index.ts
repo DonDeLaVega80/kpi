@@ -23,3 +23,8 @@ export * from "./date-picker";
 export * from "./select-field";
 export * from "./text-field";
 
+// Chart components
+export * from "./trend-chart";
+export * from "./bug-pie-chart";
+export * from "./ticket-bar-chart";
+
