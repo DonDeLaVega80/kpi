@@ -247,10 +247,12 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 6.2 Monthly KPI Generation
 
-- [ ] Implement `generate_monthly_kpi` command
-- [ ] Aggregate all metrics for a developer/month
-- [ ] Store in `monthly_kpi` table
-- [ ] Implement `get_kpi_history` command
+- [x] Implement `generate_monthly_kpi` command
+- [x] Aggregate all metrics for a developer/month:
+  - Ticket metrics: total, completed, on-time, late, early, reopened
+  - Bug metrics: total, developer_error (by severity), conceptual, other
+- [x] Store in `monthly_kpi` table (upsert - update if exists)
+- [x] Implement `get_kpi_history` command (returns all months for developer)
 
 ### 6.3 Real-time KPI Preview
 
