@@ -89,11 +89,11 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 2.1 Layout Components
 
-- [ ] Create `MainLayout` component (sidebar + content area)
-- [ ] Create `Sidebar` component with navigation
-- [ ] Create `Header` component
-- [ ] Set up React Router for page navigation
-- [ ] Implement dark/light mode toggle
+- [x] Create `MainLayout` component (sidebar + content area)
+- [x] Create `Sidebar` component with navigation
+- [x] Create `Header` component
+- [x] Set up React Router for page navigation
+- [x] Implement dark/light mode toggle
 
 ### 2.2 Common UI Components
 
