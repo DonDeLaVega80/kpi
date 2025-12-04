@@ -328,23 +328,23 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 8.1 Dashboard Layout
 
-- [ ] Create `Dashboard` page
-- [ ] Design grid layout for widgets
+- [x] Create `Dashboard` page
+- [x] Design grid layout for widgets
 
 ### 8.2 Dashboard Widgets
 
-- [ ] Active developers count
-- [ ] Current month on-time rate
-- [ ] Current month quality score
-- [ ] Overdue tickets alert (with count)
-- [ ] Recent activity feed
-- [ ] Monthly trend mini-chart
+- [x] Active developers count
+- [x] Current month on-time rate
+- [x] Current month quality score
+- [x] Overdue tickets alert (with count)
+- [x] Recent activity feed
+- [x] Monthly trend mini-chart
 
 ### 8.3 Quick Actions
 
-- [ ] "Add Ticket" quick button
-- [ ] "Report Bug" quick button
-- [ ] Links to detailed views
+- [x] "Add Ticket" quick button
+- [x] "Report Bug" quick button
+- [x] Links to detailed views
 
 **Deliverable:** Informative dashboard homepage
 
