@@ -1,86 +1,289 @@
+import { useState, useMemo } from "react";
 import { useDevelopers } from "@/hooks/useDevelopers";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  DataTable,
+  Column,
+  StatusBadge,
+  DeveloperRoleBadge,
+  ConfirmDialog,
+} from "@/components/ui/";
+import { DeveloperFormDialog, DeveloperCard } from "@/components/developers";
+import type { Developer, CreateDeveloperInput, UpdateDeveloperInput } from "@/types";
 
 export function Developers() {
-  const { developers, loading, error } = useDevelopers();
+  const { developers, loading, error, createDeveloper, updateDeveloper, deleteDeveloper, refresh } = useDevelopers();
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingDeveloper, setEditingDeveloper] = useState<Developer | undefined>();
+  const [viewingDeveloper, setViewingDeveloper] = useState<Developer | undefined>();
+  const [deactivatingDeveloper, setDeactivatingDeveloper] = useState<Developer | undefined>();
+  const [isDeactivating, setIsDeactivating] = useState(false);
+
+  // Filter developers based on search and status
+  const filteredDevelopers = useMemo(() => {
+    return developers.filter((dev) => {
+      // Search filter
+      const searchLower = search.toLowerCase();
+      const matchesSearch =
+        !search ||
+        dev.name.toLowerCase().includes(searchLower) ||
+        dev.email.toLowerCase().includes(searchLower) ||
+        dev.team?.toLowerCase().includes(searchLower);
+
+      // Status filter
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "active" && dev.isActive) ||
+        (statusFilter === "inactive" && !dev.isActive);
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [developers, search, statusFilter]);
+
+  // Table columns configuration
+  const columns: Column<Developer>[] = [
+    {
+      key: "name",
+      header: "Name",
+      cell: (dev) => (
+        <div>
+          <p className="font-medium">{dev.name}</p>
+          <p className="text-sm text-muted-foreground">{dev.email}</p>
+        </div>
+      ),
+    },
+    {
+      key: "role",
+      header: "Role",
+      cell: (dev) => <DeveloperRoleBadge role={dev.role} />,
+    },
+    {
+      key: "team",
+      header: "Team",
+      cell: (dev) => (
+        <span className="text-muted-foreground">{dev.team || "—"}</span>
+      ),
+    },
+    {
+      key: "startDate",
+      header: "Start Date",
+      cell: (dev) => (
+        <span className="text-muted-foreground">{dev.startDate}</span>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (dev) => (
+        <StatusBadge
+          status={dev.isActive ? "Active" : "Inactive"}
+          variant={dev.isActive ? "success" : "default"}
+        />
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      className: "w-[100px]",
+      cell: (dev) => (
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(dev);
+            }}
+          >
+            ✏️
+          </Button>
+          {dev.isActive && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeactivatingDeveloper(dev);
+              }}
+            >
+              🚫
+            </Button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  const handleRowClick = (developer: Developer) => {
+    setViewingDeveloper(developer);
+  };
+
+  const handleEdit = (developer: Developer) => {
+    setViewingDeveloper(undefined); // Close detail card if open
+    setEditingDeveloper(developer);
+    setIsFormOpen(true);
+  };
+
+  const handleCreateOrUpdate = async (data: CreateDeveloperInput | UpdateDeveloperInput) => {
+    if (editingDeveloper) {
+      // Edit mode
+      await updateDeveloper({
+        id: editingDeveloper.id,
+        ...data,
+      } as UpdateDeveloperInput);
+    } else {
+      // Create mode
+      await createDeveloper(data as CreateDeveloperInput);
+    }
+    setIsFormOpen(false);
+    setEditingDeveloper(undefined);
+  };
+
+  const handleDeactivate = async () => {
+    if (!deactivatingDeveloper) return;
+    
+    setIsDeactivating(true);
+    try {
+      await deleteDeveloper(deactivatingDeveloper.id);
+      setDeactivatingDeveloper(undefined);
+      setViewingDeveloper(undefined); // Close detail card if the deactivated developer was being viewed
+    } finally {
+      setIsDeactivating(false);
+    }
+  };
+
+  const handleFormClose = (open: boolean) => {
+    setIsFormOpen(open);
+    if (!open) {
+      setEditingDeveloper(undefined);
+    }
+  };
+
+  const handleDeactivateFromCard = () => {
+    if (viewingDeveloper) {
+      setDeactivatingDeveloper(viewingDeveloper);
+    }
+  };
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Developers</h1>
+          <p className="text-muted-foreground">Manage your team members</p>
+        </div>
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950">
+          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <Button variant="outline" size="sm" className="mt-2" onClick={refresh}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Developers</h1>
           <p className="text-muted-foreground">
-            Manage your team members
+            Manage your team members ({filteredDevelopers.length} of {developers.length})
           </p>
         </div>
-        <button className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-          + Add Developer
-        </button>
+        <Button onClick={() => setIsFormOpen(true)}>+ Add Developer</Button>
       </div>
 
-      {loading && (
-        <div className="flex items-center justify-center py-12">
-          <p className="text-muted-foreground">Loading developers...</p>
+      {/* Filters */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="flex-1">
+          <Input
+            placeholder="Search by name, email, or team..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="max-w-sm"
+          />
         </div>
+        <div className="flex gap-2">
+          <Button
+            variant={statusFilter === "all" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setStatusFilter("all")}
+          >
+            All
+          </Button>
+          <Button
+            variant={statusFilter === "active" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setStatusFilter("active")}
+          >
+            Active
+          </Button>
+          <Button
+            variant={statusFilter === "inactive" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setStatusFilter("inactive")}
+          >
+            Inactive
+          </Button>
+        </div>
+      </div>
+
+      {/* Data Table */}
+      <DataTable
+        data={filteredDevelopers}
+        columns={columns}
+        loading={loading}
+        getRowKey={(dev) => dev.id}
+        onRowClick={handleRowClick}
+        emptyState={{
+          icon: "👥",
+          title: search || statusFilter !== "all" ? "No developers found" : "No developers yet",
+          description:
+            search || statusFilter !== "all"
+              ? "Try adjusting your search or filter criteria"
+              : "Get started by adding your first team member",
+          action:
+            !search && statusFilter === "all" ? (
+              <Button onClick={() => setIsFormOpen(true)}>+ Add Developer</Button>
+            ) : undefined,
+        }}
+      />
+
+      {/* Developer Detail Card */}
+      {viewingDeveloper && (
+        <DeveloperCard
+          developer={viewingDeveloper}
+          open={!!viewingDeveloper}
+          onOpenChange={(open) => !open && setViewingDeveloper(undefined)}
+          onEdit={() => handleEdit(viewingDeveloper)}
+          onDeactivate={handleDeactivateFromCard}
+        />
       )}
 
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950">
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-        </div>
-      )}
+      {/* Create/Edit Developer Dialog */}
+      <DeveloperFormDialog
+        open={isFormOpen}
+        onOpenChange={handleFormClose}
+        onSubmit={handleCreateOrUpdate}
+        developer={editingDeveloper}
+      />
 
-      {!loading && !error && developers.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
-          <span className="text-4xl">👥</span>
-          <h3 className="mt-4 text-lg font-semibold">No developers yet</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Get started by adding your first team member
-          </p>
-        </div>
-      )}
-
-      {!loading && !error && developers.length > 0 && (
-        <div className="rounded-lg border">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b bg-muted/50">
-                <th className="px-4 py-3 text-left text-sm font-medium">Name</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Email</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Role</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Team</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {developers.map((dev) => (
-                <tr key={dev.id} className="border-b last:border-0">
-                  <td className="px-4 py-3 font-medium">{dev.name}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{dev.email}</td>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                      {dev.role}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {dev.team || "-"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        dev.isActive
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
-                      }`}
-                    >
-                      {dev.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {/* Deactivate Confirmation Dialog */}
+      <ConfirmDialog
+        open={!!deactivatingDeveloper}
+        onOpenChange={(open) => !open && setDeactivatingDeveloper(undefined)}
+        title="Deactivate Developer"
+        description={`Are you sure you want to deactivate ${deactivatingDeveloper?.name}? They will no longer appear in active lists, but their historical data will be preserved.`}
+        confirmText="Deactivate"
+        variant="destructive"
+        onConfirm={handleDeactivate}
+        loading={isDeactivating}
+      />
     </div>
   );
 }
