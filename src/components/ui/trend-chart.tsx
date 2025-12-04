@@ -32,22 +32,21 @@ export function TrendChart({
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
         <XAxis
           dataKey="month"
-          className="text-xs"
-          tick={{ fill: "hsl(var(--muted-foreground))" }}
+          tick={{ fill: "#6b7280", fontSize: 12 }}
         />
         <YAxis
           domain={[0, 100]}
-          className="text-xs"
-          tick={{ fill: "hsl(var(--muted-foreground))" }}
+          tick={{ fill: "#6b7280", fontSize: 12 }}
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: "hsl(var(--background))",
-            border: "1px solid hsl(var(--border))",
+            backgroundColor: "#ffffff",
+            border: "1px solid #e5e7eb",
             borderRadius: "6px",
+            color: "#111827",
           }}
           formatter={(value: number) => [`${value.toFixed(1)}%`, ""]}
         />
@@ -56,7 +55,7 @@ export function TrendChart({
           <Line
             type="monotone"
             dataKey="delivery"
-            stroke="hsl(var(--chart-1))"
+            stroke="#3b82f6"
             strokeWidth={2}
             name="Delivery Score"
             dot={{ r: 4 }}
@@ -66,7 +65,7 @@ export function TrendChart({
           <Line
             type="monotone"
             dataKey="quality"
-            stroke="hsl(var(--chart-2))"
+            stroke="#10b981"
             strokeWidth={2}
             name="Quality Score"
             dot={{ r: 4 }}
@@ -76,7 +75,7 @@ export function TrendChart({
           <Line
             type="monotone"
             dataKey="overall"
-            stroke="hsl(var(--chart-3))"
+            stroke="#8b5cf6"
             strokeWidth={2}
             name="Overall Score"
             dot={{ r: 4 }}

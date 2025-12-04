@@ -18,11 +18,11 @@ interface BugPieChartProps {
 }
 
 const COLORS = [
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))",
-  "hsl(var(--chart-4))",
-  "hsl(var(--chart-5))",
+  "#3b82f6", // Blue
+  "#10b981", // Green
+  "#8b5cf6", // Purple
+  "#f59e0b", // Amber
+  "#6b7280", // Gray
 ];
 
 export function BugPieChart({ data }: BugPieChartProps) {
@@ -52,9 +52,10 @@ export function BugPieChart({ data }: BugPieChartProps) {
         </Pie>
         <Tooltip
           contentStyle={{
-            backgroundColor: "hsl(var(--background))",
-            border: "1px solid hsl(var(--border))",
+            backgroundColor: "#ffffff",
+            border: "1px solid #e5e7eb",
             borderRadius: "6px",
+            color: "#111827",
           }}
         />
         <Legend

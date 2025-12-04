@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { MonthlyReport } from "@/components/reports";
 import type { MonthlyKPI } from "@/types";
 
 // Get current month/year
@@ -334,16 +335,21 @@ export function Reports() {
                 </p>
               </div>
             </div>
-
-            {/* Detailed metrics will be added in Phase 7.3 */}
-            <div className="rounded-lg border border-dashed p-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                Detailed charts and breakdowns coming in Phase 7.3
-              </p>
-            </div>
           </div>
         </Card>
-      ) : (
+      ) : null}
+
+      {/* Detailed Report Components */}
+      {hasData && displayKPI && (
+        <MonthlyReport
+          kpi={displayKPI}
+          history={selectedDeveloperId === "all" ? [] : history}
+          isTeamReport={selectedDeveloperId === "all"}
+        />
+      )}
+
+      {/* No Data State */}
+      {!hasData && (
         <Card className="p-6">
           <div className="flex flex-col items-center justify-center py-12">
             <span className="text-4xl">📈</span>

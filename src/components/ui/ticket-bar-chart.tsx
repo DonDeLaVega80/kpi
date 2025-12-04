@@ -25,45 +25,44 @@ export function TicketBarChart({ data }: TicketBarChartProps) {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
         <XAxis
           dataKey="name"
-          className="text-xs"
-          tick={{ fill: "hsl(var(--muted-foreground))" }}
+          tick={{ fill: "#6b7280", fontSize: 12 }}
         />
         <YAxis
-          className="text-xs"
-          tick={{ fill: "hsl(var(--muted-foreground))" }}
+          tick={{ fill: "#6b7280", fontSize: 12 }}
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: "hsl(var(--background))",
-            border: "1px solid hsl(var(--border))",
+            backgroundColor: "#ffffff",
+            border: "1px solid #e5e7eb",
             borderRadius: "6px",
+            color: "#111827",
           }}
         />
         <Legend />
         <Bar
           dataKey="completed"
-          fill="hsl(var(--chart-1))"
+          fill="#3b82f6"
           name="Completed"
           radius={[4, 4, 0, 0]}
         />
         <Bar
           dataKey="onTime"
-          fill="hsl(var(--chart-2))"
+          fill="#10b981"
           name="On-Time"
           radius={[4, 4, 0, 0]}
         />
         <Bar
           dataKey="late"
-          fill="hsl(var(--destructive))"
+          fill="#ef4444"
           name="Late"
           radius={[4, 4, 0, 0]}
         />
         <Bar
           dataKey="reopened"
-          fill="hsl(var(--chart-4))"
+          fill="#f59e0b"
           name="Reopened"
           radius={[4, 4, 0, 0]}
         />
