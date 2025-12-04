@@ -5,13 +5,15 @@
 The standalone macOS application has been built and is available at:
 
 **DMG Installer:**
+
 ```
-/Users/ranto/Documents/kpi/src-tauri/target/release/bundle/dmg/KPI Tool_0.1.0_aarch64.dmg
+src-tauri/target/release/bundle/dmg/KPI Tool_0.1.0_aarch64.dmg
 ```
 
 **App Bundle:**
+
 ```
-/Users/ranto/Documents/kpi/src-tauri/target/release/bundle/macos/KPI Tool.app
+src-tauri/target/release/bundle/macos/KPI Tool.app
 ```
 
 ## Distribution Steps
@@ -19,11 +21,13 @@ The standalone macOS application has been built and is available at:
 ### For GitHub Release:
 
 1. **Create a new release** on GitHub:
+
    - Tag: `v0.1.0`
    - Title: `KPI Tool v0.1.0 - Initial Release`
    - Description: Copy from [RELEASE_NOTES.md](RELEASE_NOTES.md)
 
 2. **Upload the DMG file**:
+
    - File: `KPI Tool_0.1.0_aarch64.dmg`
    - Location: `src-tauri/target/release/bundle/dmg/`
 
@@ -60,4 +64,3 @@ The standalone macOS application has been built and is available at:
 2. Create GitHub release
 3. Upload DMG to release
 4. Share with users
-
