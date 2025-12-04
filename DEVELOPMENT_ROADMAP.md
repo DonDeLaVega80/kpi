@@ -122,11 +122,11 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 3.1 Developer List Page
 
-- [ ] Create `Developers` page
-- [ ] Display developers in a table/grid
-- [ ] Show key info: name, email, role, team, status
-- [ ] Add search/filter functionality
-- [ ] Add "Add Developer" button
+- [x] Create `Developers` page
+- [x] Display developers in a table/grid
+- [x] Show key info: name, email, role, team, status
+- [x] Add search/filter functionality
+- [x] Add "Add Developer" button
 
 ### 3.2 Developer Form
 
