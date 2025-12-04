@@ -328,8 +328,8 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 8.1 Dashboard Layout
 
-- [ ] Create `Dashboard` page
-- [ ] Design grid layout for widgets
+- [x] Create `Dashboard` page
+- [x] Design grid layout for widgets
 
 ### 8.2 Dashboard Widgets
 
