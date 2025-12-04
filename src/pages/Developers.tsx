@@ -9,7 +9,7 @@ import {
   DeveloperRoleBadge,
   ConfirmDialog,
 } from "@/components/ui/";
-import { DeveloperFormDialog } from "@/components/developers/DeveloperFormDialog";
+import { DeveloperFormDialog, DeveloperCard } from "@/components/developers";
 import type { Developer, CreateDeveloperInput, UpdateDeveloperInput } from "@/types";
 
 export function Developers() {
@@ -18,6 +18,7 @@ export function Developers() {
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingDeveloper, setEditingDeveloper] = useState<Developer | undefined>();
+  const [viewingDeveloper, setViewingDeveloper] = useState<Developer | undefined>();
   const [deactivatingDeveloper, setDeactivatingDeveloper] = useState<Developer | undefined>();
   const [isDeactivating, setIsDeactivating] = useState(false);
 
@@ -116,7 +117,12 @@ export function Developers() {
     },
   ];
 
+  const handleRowClick = (developer: Developer) => {
+    setViewingDeveloper(developer);
+  };
+
   const handleEdit = (developer: Developer) => {
+    setViewingDeveloper(undefined); // Close detail card if open
     setEditingDeveloper(developer);
     setIsFormOpen(true);
   };
@@ -143,6 +149,7 @@ export function Developers() {
     try {
       await deleteDeveloper(deactivatingDeveloper.id);
       setDeactivatingDeveloper(undefined);
+      setViewingDeveloper(undefined); // Close detail card if the deactivated developer was being viewed
     } finally {
       setIsDeactivating(false);
     }
@@ -152,6 +159,12 @@ export function Developers() {
     setIsFormOpen(open);
     if (!open) {
       setEditingDeveloper(undefined);
+    }
+  };
+
+  const handleDeactivateFromCard = () => {
+    if (viewingDeveloper) {
+      setDeactivatingDeveloper(viewingDeveloper);
     }
   };
 
@@ -226,6 +239,7 @@ export function Developers() {
         columns={columns}
         loading={loading}
         getRowKey={(dev) => dev.id}
+        onRowClick={handleRowClick}
         emptyState={{
           icon: "👥",
           title: search || statusFilter !== "all" ? "No developers found" : "No developers yet",
@@ -239,6 +253,17 @@ export function Developers() {
             ) : undefined,
         }}
       />
+
+      {/* Developer Detail Card */}
+      {viewingDeveloper && (
+        <DeveloperCard
+          developer={viewingDeveloper}
+          open={!!viewingDeveloper}
+          onOpenChange={(open) => !open && setViewingDeveloper(undefined)}
+          onEdit={() => handleEdit(viewingDeveloper)}
+          onDeactivate={handleDeactivateFromCard}
+        />
+      )}
 
       {/* Create/Edit Developer Dialog */}
       <DeveloperFormDialog
