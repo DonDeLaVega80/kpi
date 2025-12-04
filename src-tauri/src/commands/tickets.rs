@@ -5,7 +5,7 @@ use tauri::State;
 use uuid::Uuid;
 
 /// Helper to parse a ticket from a database row
-fn parse_ticket_row(row: &rusqlite::Row) -> Result<Ticket, rusqlite::Error> {
+pub fn parse_ticket_row(row: &rusqlite::Row) -> Result<Ticket, rusqlite::Error> {
     let status_str: String = row.get(7)?;
     let complexity_str: String = row.get(10)?;
     Ok(Ticket {

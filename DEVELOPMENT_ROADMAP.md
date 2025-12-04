@@ -368,11 +368,11 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 9.3 Data Management
 
-- [ ] Manual backup button
-- [ ] Restore from backup
-- [ ] Export all data (JSON)
-- [ ] Import data (JSON)
-- [ ] Clear all data (with confirmation)
+- [x] Manual backup button
+- [x] Restore from backup
+- [x] Export all data (JSON)
+- [x] Import data (JSON)
+- [x] Clear all data (with confirmation)
 
 ### 9.4 App Preferences
 

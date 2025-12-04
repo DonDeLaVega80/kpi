@@ -4,9 +4,65 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Settings as SettingsIcon, Sliders, Database, Palette, Save, Loader2 } from "lucide-react";
-import { getKPIConfig, saveKPIConfig } from "@/lib/tauri";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Settings as SettingsIcon, Sliders, Database, Palette, Save, Loader2, Download, Upload, HardDrive, Trash2, FileText } from "lucide-react";
+import { getKPIConfig, saveKPIConfig, exportAllData, importData, clearAllData, backupDatabase, restoreDatabase } from "@/lib/tauri";
+import { save, open } from "@tauri-apps/plugin-dialog";
+import { writeTextFile, readTextFile } from "@tauri-apps/plugin-fs";
 import type { KPIConfig } from "@/types";
+
+// Clear Data Button Component
+function ClearDataButtonComponent() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
+
+  const handleClear = async () => {
+    try {
+      setIsClearing(true);
+      await clearAllData();
+      setIsOpen(false);
+      // Reload immediately after clearing data
+      window.location.reload();
+    } catch (error) {
+      setIsClearing(false);
+      setIsOpen(false);
+      alert(`Failed to clear data: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+
+  return (
+    <>
+      <Button
+        variant="destructive"
+        onClick={() => setIsOpen(true)}
+        disabled={isClearing}
+        className="w-full"
+      >
+        {isClearing ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Clearing...
+          </>
+        ) : (
+          <>
+            <Trash2 className="mr-2 h-4 w-4" />
+            Clear All Data
+          </>
+        )}
+      </Button>
+      <ConfirmDialog
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        title="Clear All Data"
+        description="This will permanently delete all developers, tickets, bugs, and KPI reports. This action cannot be undone. Are you absolutely sure?"
+        confirmText="Yes, Clear All Data"
+        cancelText="Cancel"
+        onConfirm={handleClear}
+        variant="destructive"
+      />
+    </>
+  );
+}
 
 export function Settings() {
   const [kpiConfig, setKpiConfig] = useState<KPIConfig | null>(null);
@@ -283,25 +339,139 @@ export function Settings() {
         </Card>
 
         {/* Data Management Section */}
-        <Card className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
-              <Database className="h-5 w-5 text-green-600 dark:text-green-400" />
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
+                <Database className="h-5 w-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div className="flex-1">
+                <CardTitle>Data Management</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Backup, restore, export, import, and manage your data
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg font-semibold">Data Management</h2>
-              <p className="text-sm text-muted-foreground">
-                Backup, restore, and manage your data
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Export/Import Section */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold">Export & Import</h3>
+              <div className="grid gap-3 md:grid-cols-2">
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      const jsonData = await exportAllData();
+                      const filePath = await save({
+                        defaultPath: `kpi-export-${new Date().toISOString().split('T')[0]}.json`,
+                        filters: [
+                          {
+                            name: "JSON",
+                            extensions: ["json"],
+                          },
+                        ],
+                      });
+                      if (filePath) {
+                        await writeTextFile(filePath, jsonData);
+                        alert(`Data exported successfully to:\n${filePath}`);
+                      }
+                    } catch (error) {
+                      alert(`Failed to export data: ${error instanceof Error ? error.message : String(error)}`);
+                    }
+                  }}
+                  className="w-full"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Export All Data (JSON)
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      const filePath = await open({
+                        filters: [
+                          {
+                            name: "JSON",
+                            extensions: ["json"],
+                          },
+                        ],
+                      });
+                      if (filePath && typeof filePath === 'string') {
+                        const jsonData = await readTextFile(filePath);
+                        await importData(jsonData);
+                        // Reload immediately after importing data
+                        window.location.reload();
+                      }
+                    } catch (error) {
+                      alert(`Failed to import data: ${error instanceof Error ? error.message : String(error)}`);
+                    }
+                  }}
+                  className="w-full"
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Import Data (JSON)
+                </Button>
+              </div>
+            </div>
+
+            {/* Backup/Restore Section */}
+            <div className="space-y-3 pt-4 border-t">
+              <h3 className="text-sm font-semibold">Database Backup & Restore</h3>
+              <div className="grid gap-3 md:grid-cols-2">
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      const backupPath = await backupDatabase();
+                      alert(`Database backed up successfully to:\n${backupPath}`);
+                    } catch (error) {
+                      alert(`Failed to backup database: ${error instanceof Error ? error.message : String(error)}`);
+                    }
+                  }}
+                  className="w-full"
+                >
+                  <HardDrive className="mr-2 h-4 w-4" />
+                  Backup Database
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      const filePath = await open({
+                        filters: [
+                          {
+                            name: "Database",
+                            extensions: ["db"],
+                          },
+                        ],
+                      });
+                      if (filePath && typeof filePath === 'string') {
+                        await restoreDatabase(filePath);
+                        // Reload immediately after restoring database
+                        window.location.reload();
+                      }
+                    } catch (error) {
+                      alert(`Failed to restore database: ${error instanceof Error ? error.message : String(error)}`);
+                    }
+                  }}
+                  className="w-full"
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Restore Database
+                </Button>
+              </div>
+            </div>
+
+            {/* Clear Data Section */}
+            <div className="space-y-3 pt-4 border-t">
+              <h3 className="text-sm font-semibold text-red-600 dark:text-red-400">Danger Zone</h3>
+              <p className="text-xs text-muted-foreground">
+                Permanently delete all data. This action cannot be undone.
               </p>
+              <ClearDataButtonComponent />
             </div>
-          </div>
-          <div className="pl-14">
-            <p className="text-sm text-muted-foreground">
-              Create backups, export/import data, and manage your database.
-              <br />
-              <span className="text-xs italic">Coming in Phase 9.3</span>
-            </p>
-          </div>
+          </CardContent>
         </Card>
 
         {/* App Preferences Section */}

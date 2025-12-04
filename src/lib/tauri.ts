@@ -164,3 +164,28 @@ export async function saveKPIConfig(
     bugPenaltyLow,
   });
 }
+
+// Data management commands
+export async function exportAllData(): Promise<string> {
+  return invoke("export_all_data");
+}
+
+export async function importData(jsonData: string): Promise<void> {
+  return invoke("import_data", { jsonData });
+}
+
+export async function clearAllData(): Promise<void> {
+  return invoke("clear_all_data");
+}
+
+export async function backupDatabase(): Promise<string> {
+  return invoke("backup_database");
+}
+
+export async function restoreDatabase(backupPath: string): Promise<void> {
+  return invoke("restore_database", { backupPath });
+}
+
+export async function restartApp(): Promise<void> {
+  return invoke("restart_app");
+}
