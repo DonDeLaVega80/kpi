@@ -169,12 +169,12 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 4.3 Ticket Card & Actions
 
-- [ ] Create `TicketCard` component for detail view
-- [ ] Show full ticket info + history
-- [ ] Status change buttons (workflow)
-- [ ] "Mark Complete" action (calculates on-time)
-- [ ] "Reopen" action (increments counter)
-- [ ] Show linked bugs
+- [x] Create `TicketCard` component for detail view
+- [x] Show full ticket info + history
+- [x] Status change buttons (workflow)
+- [x] "Mark Complete" action (calculates on-time)
+- [x] "Reopen" action (increments counter)
+- [x] Show linked bugs
 
 ### 4.4 Ticket Timeline (Optional)
 

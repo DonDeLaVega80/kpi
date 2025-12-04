@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TicketFormDialog } from "@/components/tickets/TicketFormDialog";
+import { TicketFormDialog, TicketCard } from "@/components/tickets";
 import type { Ticket, CreateTicketInput, UpdateTicketInput, TicketStatus } from "@/types";
 
 // Helper to check if a ticket is overdue
@@ -46,7 +46,17 @@ export function Tickets() {
   const [searchParams] = useSearchParams();
   const developerIdFromUrl = searchParams.get("developer") || undefined;
   
-  const { tickets, loading, error, createTicket, updateTicket, refresh } = useTickets();
+  const { 
+    tickets, 
+    loading, 
+    error, 
+    createTicket, 
+    updateTicket, 
+    updateTicketStatus,
+    completeTicket,
+    reopenTicket,
+    refresh 
+  } = useTickets();
   const { developers } = useDevelopers();
   
   const [search, setSearch] = useState("");
@@ -56,11 +66,16 @@ export function Tickets() {
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<Ticket | undefined>();
+  const [viewingTicket, setViewingTicket] = useState<Ticket | undefined>();
+
+  // Get developer by ID
+  const getDeveloper = (developerId: string) => {
+    return developers.find((d) => d.id === developerId);
+  };
 
   // Get developer name by ID
   const getDeveloperName = (developerId: string): string => {
-    const dev = developers.find((d) => d.id === developerId);
-    return dev?.name || "Unknown";
+    return getDeveloper(developerId)?.name || "Unknown";
   };
 
   // Filter and sort tickets
@@ -209,20 +224,23 @@ export function Tickets() {
     },
   ];
 
+  const handleRowClick = (ticket: Ticket) => {
+    setViewingTicket(ticket);
+  };
+
   const handleEdit = (ticket: Ticket) => {
+    setViewingTicket(undefined);
     setEditingTicket(ticket);
     setIsFormOpen(true);
   };
 
   const handleCreateOrUpdate = async (data: CreateTicketInput | UpdateTicketInput) => {
     if (editingTicket) {
-      // Edit mode
       await updateTicket({
         id: editingTicket.id,
         ...data,
       } as UpdateTicketInput);
     } else {
-      // Create mode
       await createTicket(data as CreateTicketInput);
     }
     setIsFormOpen(false);
@@ -234,6 +252,25 @@ export function Tickets() {
     if (!open) {
       setEditingTicket(undefined);
     }
+  };
+
+  const handleStatusChange = async (status: TicketStatus) => {
+    if (!viewingTicket) return;
+    await updateTicketStatus(viewingTicket.id, status);
+    // Update the viewing ticket with new status
+    setViewingTicket((prev) => prev ? { ...prev, status } : undefined);
+  };
+
+  const handleComplete = async (actualHours?: number) => {
+    if (!viewingTicket) return;
+    const updated = await completeTicket(viewingTicket.id, actualHours);
+    setViewingTicket(updated);
+  };
+
+  const handleReopen = async () => {
+    if (!viewingTicket) return;
+    const updated = await reopenTicket(viewingTicket.id);
+    setViewingTicket(updated);
   };
 
   if (error) {
@@ -339,6 +376,7 @@ export function Tickets() {
         columns={columns}
         loading={loading}
         getRowKey={(ticket) => ticket.id}
+        onRowClick={handleRowClick}
         emptyState={{
           icon: "🎫",
           title: search || statusFilter !== "all" || developerFilter !== "all" 
@@ -354,6 +392,20 @@ export function Tickets() {
             ) : undefined,
         }}
       />
+
+      {/* Ticket Detail Card */}
+      {viewingTicket && (
+        <TicketCard
+          ticket={viewingTicket}
+          developer={getDeveloper(viewingTicket.developerId)}
+          open={!!viewingTicket}
+          onOpenChange={(open) => !open && setViewingTicket(undefined)}
+          onEdit={() => handleEdit(viewingTicket)}
+          onStatusChange={handleStatusChange}
+          onComplete={handleComplete}
+          onReopen={handleReopen}
+        />
+      )}
 
       {/* Create/Edit Ticket Dialog */}
       <TicketFormDialog
