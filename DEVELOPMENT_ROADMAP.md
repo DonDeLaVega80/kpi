@@ -162,10 +162,10 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 4.2 Ticket Form
 
-- [ ] Create `TicketForm` component
-- [ ] Fields: title, description, developer (dropdown), due date, complexity, estimated hours
-- [ ] Auto-set assigned date to today
-- [ ] Validation: required fields, due date >= today
+- [x] Create `TicketForm` component
+- [x] Fields: title, description, developer (dropdown), due date, complexity, estimated hours
+- [x] Auto-set assigned date to today
+- [x] Validation: required fields, due date >= today
 
 ### 4.3 Ticket Card & Actions
 

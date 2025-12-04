@@ -46,7 +46,7 @@ export function Tickets() {
   const [searchParams] = useSearchParams();
   const developerIdFromUrl = searchParams.get("developer") || undefined;
   
-  const { tickets, loading, error, createTicket, refresh } = useTickets();
+  const { tickets, loading, error, createTicket, updateTicket, refresh } = useTickets();
   const { developers } = useDevelopers();
   
   const [search, setSearch] = useState("");
@@ -55,6 +55,7 @@ export function Tickets() {
   const [sortField, setSortField] = useState<SortField>("dueDate");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingTicket, setEditingTicket] = useState<Ticket | undefined>();
 
   // Get developer name by ID
   const getDeveloperName = (developerId: string): string => {
@@ -189,11 +190,50 @@ export function Tickets() {
           <span className="text-muted-foreground">0</span>
         ),
     },
+    {
+      key: "actions",
+      header: "",
+      className: "w-[60px]",
+      cell: (ticket) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleEdit(ticket);
+          }}
+        >
+          ✏️
+        </Button>
+      ),
+    },
   ];
 
-  const handleCreateTicket = async (data: CreateTicketInput | UpdateTicketInput) => {
-    await createTicket(data as CreateTicketInput);
+  const handleEdit = (ticket: Ticket) => {
+    setEditingTicket(ticket);
+    setIsFormOpen(true);
+  };
+
+  const handleCreateOrUpdate = async (data: CreateTicketInput | UpdateTicketInput) => {
+    if (editingTicket) {
+      // Edit mode
+      await updateTicket({
+        id: editingTicket.id,
+        ...data,
+      } as UpdateTicketInput);
+    } else {
+      // Create mode
+      await createTicket(data as CreateTicketInput);
+    }
     setIsFormOpen(false);
+    setEditingTicket(undefined);
+  };
+
+  const handleFormClose = (open: boolean) => {
+    setIsFormOpen(open);
+    if (!open) {
+      setEditingTicket(undefined);
+    }
   };
 
   if (error) {
@@ -315,11 +355,12 @@ export function Tickets() {
         }}
       />
 
-      {/* Create Ticket Dialog */}
+      {/* Create/Edit Ticket Dialog */}
       <TicketFormDialog
         open={isFormOpen}
-        onOpenChange={setIsFormOpen}
-        onSubmit={handleCreateTicket}
+        onOpenChange={handleFormClose}
+        onSubmit={handleCreateOrUpdate}
+        ticket={editingTicket}
         developers={developers.filter((d) => d.isActive)}
       />
     </div>
