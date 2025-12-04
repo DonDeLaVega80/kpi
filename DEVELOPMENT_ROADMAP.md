@@ -192,17 +192,17 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 5.1 Bug List
 
-- [ ] Create `Bugs` page (or section within Tickets)
-- [ ] Display bugs in table
-- [ ] Show: title, ticket, developer, severity, type, status
-- [ ] Filter by: bug type, severity, resolved status
+- [x] Create `Bugs` page (or section within Tickets)
+- [x] Display bugs in table
+- [x] Show: title, ticket, developer, severity, type, status
+- [x] Filter by: bug type, severity, resolved status
 
 ### 5.2 Bug Form
 
-- [ ] Create `BugForm` component
-- [ ] Fields: title, description, ticket (dropdown), severity, bug type
-- [ ] Auto-fill developer from selected ticket
-- [ ] **Bug Type Selection** - make this prominent with descriptions:
+- [x] Create `BugForm` component
+- [x] Fields: title, description, ticket (dropdown), severity, bug type
+- [x] Auto-fill developer from selected ticket
+- [x] **Bug Type Selection** - make this prominent with descriptions:
   - Developer Error
   - Conceptual/Requirement Misunderstanding
   - Requirement Change
@@ -211,10 +211,12 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 5.3 Bug Classification UI
 
-- [ ] Create `BugClassification` component
-- [ ] Visual guide for choosing bug type
-- [ ] Help text explaining each type
-- [ ] Impact on KPI shown
+- [x] Create `BugCard` component with detail view
+- [x] Visual guide for choosing bug type (reclassify dialog)
+- [x] Help text explaining each type
+- [x] Impact on KPI shown
+- [x] Resolve action with confirmation
+- [x] Reclassify bug type action
 
 **Deliverable:** Complete bug tracking with classification
 

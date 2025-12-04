@@ -31,6 +31,7 @@ pub fn run() {
             reopen_ticket,
             // Bug commands
             create_bug,
+            get_all_bugs,
             get_bugs_by_ticket,
             get_bugs_by_developer,
             update_bug,

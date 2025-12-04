@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Bug, CreateBugInput, UpdateBugInput } from "@/types";
 import {
+  getAllBugs,
   getBugsByTicket,
   getBugsByDeveloper,
   createBug as createBugApi,
@@ -20,7 +21,7 @@ interface UseBugsReturn {
   refresh: () => Promise<void>;
   createBug: (input: CreateBugInput) => Promise<Bug>;
   updateBug: (input: UpdateBugInput) => Promise<Bug>;
-  resolveBug: (id: string) => Promise<Bug>;
+  resolveBug: (id: string, resolvedByDeveloperId?: string, fixTicketId?: string, fixHours?: number) => Promise<Bug>;
 }
 
 export function useBugs(options: UseBugsOptions = {}): UseBugsReturn {
@@ -40,9 +41,8 @@ export function useBugs(options: UseBugsOptions = {}): UseBugsReturn {
       } else if (developerId) {
         data = await getBugsByDeveloper(developerId);
       } else {
-        // No filter provided - return empty array
-        // (we don't have a get_all_bugs endpoint)
-        data = [];
+        // No filter provided - get all bugs
+        data = await getAllBugs();
       }
       setBugs(data);
     } catch (err) {
@@ -75,8 +75,8 @@ export function useBugs(options: UseBugsOptions = {}): UseBugsReturn {
   );
 
   const resolveBug = useCallback(
-    async (id: string): Promise<Bug> => {
-      const bug = await resolveBugApi(id);
+    async (id: string, resolvedByDeveloperId?: string, fixTicketId?: string, fixHours?: number): Promise<Bug> => {
+      const bug = await resolveBugApi(id, resolvedByDeveloperId, fixTicketId, fixHours);
       await refresh();
       return bug;
     },

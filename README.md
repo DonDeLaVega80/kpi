@@ -4,7 +4,7 @@ A standalone desktop application for tracking developer performance through tick
 
 ## 🚧 Development Status
 
-**Phase 4 Complete** - Full Ticket Management workflow is implemented.
+**Phase 5 Complete** - Full Bug Tracking with classification and resolution workflow.
 
 ### Completed
 - ✅ Tauri + React + TypeScript project initialized
@@ -13,7 +13,7 @@ A standalone desktop application for tracking developer performance through tick
 - ✅ Rust backend structure (commands, models, services)
 - ✅ Developer CRUD operations (create, read, update, soft-delete)
 - ✅ Ticket CRUD operations (create, status updates, complete, reopen)
-- ✅ Bug CRUD operations (create, resolve, auto-link to developer)
+- ✅ Bug CRUD operations (create, resolve, reclassify, auto-link to developer)
 - ✅ React hooks for all entities (useDevelopers, useTickets, useBugs)
 - ✅ App shell with sidebar navigation and routing
 - ✅ Dark/light mode toggle with persistence
@@ -28,18 +28,50 @@ A standalone desktop application for tracking developer performance through tick
 - ✅ Mark Complete action (with accumulating actual hours)
 - ✅ Reopen action (increments counter, affects KPI)
 - ✅ Visual ticket timeline showing lifecycle stages
+- ✅ Bug list page with comprehensive filtering
+- ✅ Bug form dialog with visual bug type selector
+- ✅ Bug detail card with classification display
+- ✅ Bug resolve action with resolver selection and fix ticket linking
+- ✅ Bug reclassify action with KPI impact visualization
+- ✅ Auto-complete fix ticket when bug is resolved
 
 ### Next Up
-- 🔲 Phase 5: Bug Tracking (full CRUD UI)
-- 🔲 Phase 6-11: See [Development Roadmap](DEVELOPMENT_ROADMAP.md)
+- 🔲 Phase 6: KPI Calculation Engine
+- 🔲 Phase 7-11: See [Development Roadmap](DEVELOPMENT_ROADMAP.md)
 
 ## Features
 
 - **Developer Management** - Track your team members with roles (junior, mid, senior, lead)
 - **Ticket Tracking** - Assign tickets with due dates, track on-time delivery and reopens
 - **Bug Classification** - Categorize bugs fairly (developer error vs conceptual vs external)
-- **KPI Reports** - Monthly performance reports with delivery and quality scores
-- **Trend Analysis** - Track improvement or decline over time
+- **Bug Resolution Workflow** - Track who fixed bugs and link to fix tickets
+- **KPI Reports** - Monthly performance reports with delivery and quality scores (coming soon)
+- **Trend Analysis** - Track improvement or decline over time (coming soon)
+
+## Bug Tracking & KPI
+
+### How Bugs Affect KPI
+
+| Bug Type | KPI Impact | Description |
+|----------|------------|-------------|
+| **Developer Error** | Full deduction | Coding mistake or oversight |
+| **Conceptual** | Minor deduction | Requirement misunderstanding |
+| **Requirement Change** | No deduction | Spec changed after implementation |
+| **Environment** | No deduction | Infrastructure issue |
+| **Third-Party** | No deduction | External dependency problem |
+
+### Bug Resolution Flow
+
+When resolving a bug, you can:
+1. **Select who fixed it** - Different from who introduced it
+2. **Link a fix ticket** - The ticket created to fix this bug
+3. **Log hours spent** - Time tracking for KPI
+
+The system automatically:
+- Keeps KPI impact on the developer who **introduced** the bug
+- Reassigns the fix ticket to the **resolver**
+- Marks the fix ticket as **completed**
+- Adds logged hours to the fix ticket
 
 ## Tech Stack
 
@@ -87,8 +119,9 @@ kpi/
 │   │   ├── ui/               # shadcn/ui + custom components
 │   │   ├── layout/           # MainLayout, Sidebar, Header
 │   │   ├── developers/       # DeveloperFormDialog, DeveloperCard
-│   │   └── tickets/          # TicketFormDialog, TicketCard, TicketTimeline
-│   ├── pages/                # Dashboard, Developers, Tickets, etc.
+│   │   ├── tickets/          # TicketFormDialog, TicketCard, TicketTimeline
+│   │   └── bugs/             # BugFormDialog, BugCard
+│   ├── pages/                # Dashboard, Developers, Tickets, Bugs, Reports
 │   ├── hooks/                # useDevelopers, useTickets, useBugs
 │   ├── types/                # TypeScript interfaces
 │   └── lib/                  # Utilities & Tauri wrappers
