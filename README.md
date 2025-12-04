@@ -4,8 +4,9 @@ A standalone desktop application for tracking developer performance through tick
 
 ## 🚧 Development Status
 
-**Phase 1 Complete** - Core data layer is fully implemented.
+**Phase 2 Complete** - UI foundation is fully implemented.
 
+### Completed
 - ✅ Tauri + React + TypeScript project initialized
 - ✅ Tailwind CSS + shadcn/ui configured
 - ✅ SQLite database with migrations
@@ -14,8 +15,14 @@ A standalone desktop application for tracking developer performance through tick
 - ✅ Ticket CRUD operations (create, status updates, complete, reopen)
 - ✅ Bug CRUD operations (create, resolve, auto-link to developer)
 - ✅ React hooks for all entities (useDevelopers, useTickets, useBugs)
-- 🔲 Phase 2: Developer Management UI
-- 🔲 Phase 3-11: See [Development Roadmap](DEVELOPMENT_ROADMAP.md)
+- ✅ App shell with sidebar navigation and routing
+- ✅ Dark/light mode toggle with persistence
+- ✅ Common UI components (DataTable, StatCard, StatusBadge, EmptyState, etc.)
+- ✅ Form components with validation (react-hook-form + zod)
+
+### Next Up
+- 🔲 Phase 3: Developer Management (full CRUD UI)
+- 🔲 Phase 4-11: See [Development Roadmap](DEVELOPMENT_ROADMAP.md)
 
 ## Features
 
@@ -67,9 +74,11 @@ npm run tauri build
 ```
 kpi/
 ├── src/                      # React frontend
-│   ├── components/ui/        # shadcn/ui components
-│   ├── pages/                # Page components
-│   ├── hooks/                # Custom React hooks
+│   ├── components/
+│   │   ├── ui/               # shadcn/ui + custom components
+│   │   └── layout/           # MainLayout, Sidebar, Header
+│   ├── pages/                # Dashboard, Developers, Tickets, etc.
+│   ├── hooks/                # useDevelopers, useTickets, useBugs
 │   ├── types/                # TypeScript interfaces
 │   └── lib/                  # Utilities & Tauri wrappers
 ├── src-tauri/src/            # Rust backend
