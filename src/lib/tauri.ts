@@ -16,7 +16,7 @@ import type {
 export async function createDeveloper(
   data: CreateDeveloperInput
 ): Promise<Developer> {
-  return invoke("create_developer", data);
+  return invoke("create_developer", { input: data });
 }
 
 export async function getAllDevelopers(): Promise<Developer[]> {
@@ -30,7 +30,7 @@ export async function getDeveloperById(id: string): Promise<Developer> {
 export async function updateDeveloper(
   data: UpdateDeveloperInput
 ): Promise<Developer> {
-  return invoke("update_developer", data);
+  return invoke("update_developer", { input: data });
 }
 
 export async function deleteDeveloper(id: string): Promise<void> {
@@ -39,7 +39,7 @@ export async function deleteDeveloper(id: string): Promise<void> {
 
 // Ticket commands
 export async function createTicket(data: CreateTicketInput): Promise<Ticket> {
-  return invoke("create_ticket", data);
+  return invoke("create_ticket", { input: data });
 }
 
 export async function getAllTickets(): Promise<Ticket[]> {
@@ -53,7 +53,7 @@ export async function getTicketsByDeveloper(
 }
 
 export async function updateTicket(data: UpdateTicketInput): Promise<Ticket> {
-  return invoke("update_ticket", data);
+  return invoke("update_ticket", { input: data });
 }
 
 export async function updateTicketStatus(
@@ -76,7 +76,7 @@ export async function reopenTicket(id: string): Promise<Ticket> {
 
 // Bug commands
 export async function createBug(data: CreateBugInput): Promise<Bug> {
-  return invoke("create_bug", data);
+  return invoke("create_bug", { input: data });
 }
 
 export async function getBugsByTicket(ticketId: string): Promise<Bug[]> {
@@ -88,7 +88,7 @@ export async function getBugsByDeveloper(developerId: string): Promise<Bug[]> {
 }
 
 export async function updateBug(data: UpdateBugInput): Promise<Bug> {
-  return invoke("update_bug", data);
+  return invoke("update_bug", { input: data });
 }
 
 export async function resolveBug(id: string): Promise<Bug> {
@@ -113,4 +113,3 @@ export async function getCurrentMonthKPI(
 ): Promise<MonthlyKPI> {
   return invoke("get_current_month_kpi", { developerId });
 }
-

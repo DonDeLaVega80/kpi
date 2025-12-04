@@ -46,14 +46,14 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 1.1 Developer Model & CRUD
 
-- [ ] Create `Developer` struct in Rust
-- [ ] Implement `create_developer` command
-- [ ] Implement `get_all_developers` command
-- [ ] Implement `get_developer_by_id` command
-- [ ] Implement `update_developer` command
-- [ ] Implement `delete_developer` (soft delete - set `is_active = false`)
-- [ ] Create TypeScript types matching Rust structs
-- [ ] Create `useDevelopers` hook with Tauri invoke wrappers
+- [x] Create `Developer` struct in Rust
+- [x] Implement `create_developer` command
+- [x] Implement `get_all_developers` command
+- [x] Implement `get_developer_by_id` command
+- [x] Implement `update_developer` command
+- [x] Implement `delete_developer` (soft delete - set `is_active = false`)
+- [x] Create TypeScript types matching Rust structs
+- [x] Create `useDevelopers` hook with Tauri invoke wrappers
 
 ### 1.2 Ticket Model & CRUD
 

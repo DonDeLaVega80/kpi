@@ -6,10 +6,10 @@ export interface Developer {
   email: string;
   role: DeveloperRole;
   team?: string;
-  startDate: Date;
+  startDate: string;
   isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateDeveloperInput {
@@ -28,4 +28,3 @@ export interface UpdateDeveloperInput {
   team?: string;
   isActive?: boolean;
 }
-
