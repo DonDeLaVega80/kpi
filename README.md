@@ -4,7 +4,7 @@ A standalone desktop application for tracking developer performance through tick
 
 ## 🚧 Development Status
 
-**Phase 5 Complete** - Full Bug Tracking with classification and resolution workflow.
+**Phase 6 Complete** - KPI Calculation Engine fully implemented with real-time dashboard display.
 
 ### Completed
 - ✅ Tauri + React + TypeScript project initialized
@@ -14,7 +14,7 @@ A standalone desktop application for tracking developer performance through tick
 - ✅ Developer CRUD operations (create, read, update, soft-delete)
 - ✅ Ticket CRUD operations (create, status updates, complete, reopen)
 - ✅ Bug CRUD operations (create, resolve, reclassify, auto-link to developer)
-- ✅ React hooks for all entities (useDevelopers, useTickets, useBugs)
+- ✅ React hooks for all entities (useDevelopers, useTickets, useBugs, useKPI)
 - ✅ App shell with sidebar navigation and routing
 - ✅ Dark/light mode toggle with persistence
 - ✅ Common UI components (DataTable, StatCard, StatusBadge, EmptyState, etc.)
@@ -34,10 +34,14 @@ A standalone desktop application for tracking developer performance through tick
 - ✅ Bug resolve action with resolver selection and fix ticket linking
 - ✅ Bug reclassify action with KPI impact visualization
 - ✅ Auto-complete fix ticket when bug is resolved
+- ✅ KPI Calculator Service (delivery, quality, overall scores)
+- ✅ Monthly KPI generation and storage
+- ✅ Real-time KPI preview (current month)
+- ✅ Dashboard with team KPI summary and averages
 
 ### Next Up
-- 🔲 Phase 6: KPI Calculation Engine
-- 🔲 Phase 7-11: See [Development Roadmap](DEVELOPMENT_ROADMAP.md)
+- 🔲 Phase 7: Reports & Visualization (detailed KPI reports UI)
+- 🔲 Phase 8-11: See [Development Roadmap](DEVELOPMENT_ROADMAP.md)
 
 ## Features
 
@@ -45,7 +49,9 @@ A standalone desktop application for tracking developer performance through tick
 - **Ticket Tracking** - Assign tickets with due dates, track on-time delivery and reopens
 - **Bug Classification** - Categorize bugs fairly (developer error vs conceptual vs external)
 - **Bug Resolution Workflow** - Track who fixed bugs and link to fix tickets
-- **KPI Reports** - Monthly performance reports with delivery and quality scores (coming soon)
+- **KPI Calculation** - Automatic calculation of delivery, quality, and overall scores
+- **Real-time Dashboard** - View team performance metrics and averages
+- **Monthly KPI Reports** - Generate and store monthly performance snapshots
 - **Trend Analysis** - Track improvement or decline over time (coming soon)
 
 ## Bug Tracking & KPI
@@ -122,14 +128,14 @@ kpi/
 │   │   ├── tickets/          # TicketFormDialog, TicketCard, TicketTimeline
 │   │   └── bugs/             # BugFormDialog, BugCard
 │   ├── pages/                # Dashboard, Developers, Tickets, Bugs, Reports
-│   ├── hooks/                # useDevelopers, useTickets, useBugs
+│   ├── hooks/                # useDevelopers, useTickets, useBugs, useKPI
 │   ├── types/                # TypeScript interfaces
 │   └── lib/                  # Utilities & Tauri wrappers
 ├── src-tauri/src/            # Rust backend
 │   ├── commands/             # Tauri IPC commands
 │   ├── db/                   # Database & migrations
 │   ├── models/               # Data structures
-│   └── services/             # Business logic
+│   └── services/             # Business logic (KPI calculator)
 ├── ARCHITECTURE.md           # Technical design
 └── DEVELOPMENT_ROADMAP.md    # Build guide
 ```
@@ -142,16 +148,34 @@ kpi/
 ## How KPI is Calculated
 
 ### Delivery Score (0-100)
-Based on on-time ticket completion with bonuses for early delivery and penalties for late/reopened tickets.
+Based on on-time ticket completion:
+- **Base**: (on-time tickets / completed tickets) × 100
+- **Bonus**: +5 points per early delivery (>1 day early)
+- **Penalty**: -10 points per late critical ticket
+- **Penalty**: -5 points per reopened ticket
 
 ### Quality Score (0-100)
 Starts at 100, with deductions based on bugs:
-- **Developer Error** bugs: Full deduction (by severity)
-- **Conceptual** bugs: Minor deduction
+- **Developer Error** bugs: -15 (critical), -10 (high), -5 (medium), -2 (low) per bug
+- **Conceptual** bugs: -3 per bug
 - **Requirement Change / Environment / Third-Party** bugs: No deduction
 
 ### Overall Score
-Weighted average of Delivery and Quality scores (configurable).
+Weighted average of Delivery and Quality scores (default: 50/50 split).
+
+### Trend Calculation
+Compares current month's overall score with previous 3 months average:
+- **Improving**: current > average + 5
+- **Stable**: within ±5 of average
+- **Declining**: current < average - 5
+
+## Dashboard
+
+The Dashboard provides real-time insights:
+- **Team Stats**: Active developers, open/completed tickets, unresolved bugs
+- **Average Scores**: Overall, delivery, and quality scores across the team
+- **Team KPI Summary**: Individual developer scores with trend indicators
+- **Recent Activity**: Latest completed tickets and reported bugs
 
 ## Data Storage
 

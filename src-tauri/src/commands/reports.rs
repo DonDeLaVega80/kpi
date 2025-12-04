@@ -41,8 +41,17 @@ fn aggregate_ticket_metrics(
 ) -> Result<TicketMetrics, String> {
     let mut metrics = TicketMetrics::default();
 
+    // Build date range for the month (YYYY-MM-DD format)
+    let start_date = format!("{:04}-{:02}-01", year, month);
+    let end_date = if month == 12 {
+        format!("{:04}-01-01", year + 1)
+    } else {
+        format!("{:04}-{:02}-01", year, month + 1)
+    };
+
     // Query all tickets for this developer that were completed in the given month
-    // OR are still assigned (for total count)
+    // OR are still assigned in this month (for total count)
+    // assigned_date and due_date are stored as YYYY-MM-DD, completed_date might be NULL
     let mut stmt = conn
         .prepare(
             "SELECT 
@@ -56,19 +65,16 @@ fn aggregate_ticket_metrics(
              WHERE developer_id = ?1
                AND (
                    -- Completed in this month
-                   (status = 'completed' AND strftime('%m', completed_date) = ?2 AND strftime('%Y', completed_date) = ?3)
+                   (status = 'completed' AND completed_date IS NOT NULL AND completed_date >= ?2 AND completed_date < ?3)
                    OR
                    -- Assigned in this month (for total count)
-                   (strftime('%m', assigned_date) = ?2 AND strftime('%Y', assigned_date) = ?3)
+                   (assigned_date >= ?2 AND assigned_date < ?3)
                )",
         )
         .map_err(|e| format!("Failed to prepare ticket query: {}", e))?;
 
-    let month_str = format!("{:02}", month);
-    let year_str = year.to_string();
-
     let rows = stmt
-        .query_map([developer_id, &month_str, &year_str], |row| {
+        .query_map([developer_id, &start_date, &end_date], |row| {
             Ok((
                 row.get::<_, String>(0)?,          // status
                 row.get::<_, String>(1)?,          // complexity
@@ -132,22 +138,28 @@ fn aggregate_bug_metrics(
 ) -> Result<BugMetrics, String> {
     let mut metrics = BugMetrics::default();
 
+    // Build date range for the month
+    let start_date = format!("{:04}-{:02}-01", year, month);
+    let end_date = if month == 12 {
+        format!("{:04}-01-01", year + 1)
+    } else {
+        format!("{:04}-{:02}-01", year, month + 1)
+    };
+
     // Query all bugs for this developer created in the given month
+    // Using substr to extract YYYY-MM-DD from RFC3339 timestamps
     let mut stmt = conn
         .prepare(
             "SELECT bug_type, severity
              FROM bugs
              WHERE developer_id = ?1
-               AND strftime('%m', created_at) = ?2
-               AND strftime('%Y', created_at) = ?3",
+               AND substr(created_at, 1, 10) >= ?2
+               AND substr(created_at, 1, 10) < ?3",
         )
         .map_err(|e| format!("Failed to prepare bug query: {}", e))?;
 
-    let month_str = format!("{:02}", month);
-    let year_str = year.to_string();
-
     let rows = stmt
-        .query_map([developer_id, &month_str, &year_str], |row| {
+        .query_map([developer_id, &start_date, &end_date], |row| {
             Ok((
                 row.get::<_, String>(0)?, // bug_type
                 row.get::<_, String>(1)?, // severity
@@ -448,17 +460,89 @@ pub fn get_kpi_history(
     history.map_err(|e| format!("Failed to collect KPI history: {}", e))
 }
 
-/// Get current month KPI (calculated on-the-fly, not stored)
+/// Get current month KPI (calculated on-the-fly, NOT stored)
+/// This is used for real-time dashboard display
 #[tauri::command]
 pub fn get_current_month_kpi(
     state: State<DbState>,
     developer_id: String,
 ) -> Result<MonthlyKPI, String> {
+    let conn = state.0.lock().map_err(|e| format!("Database lock error: {}", e))?;
+
     let now = Utc::now();
     let month = now.format("%m").to_string().parse::<i32>().unwrap_or(1);
     let year = now.format("%Y").to_string().parse::<i32>().unwrap_or(2024);
 
-    // Use generate_monthly_kpi but don't store it (actually it does store, which is fine)
-    // For a true "preview", we could skip the storage step, but storing is useful
-    generate_monthly_kpi(state, developer_id, month, year)
+    // Verify developer exists
+    let _: String = conn
+        .query_row(
+            "SELECT id FROM developers WHERE id = ?1",
+            [&developer_id],
+            |row| row.get(0),
+        )
+        .map_err(|_| "Developer not found".to_string())?;
+
+    // Aggregate metrics (same as generate_monthly_kpi)
+    let ticket_metrics = aggregate_ticket_metrics(&conn, &developer_id, month, year)?;
+    let bug_metrics = aggregate_bug_metrics(&conn, &developer_id, month, year)?;
+
+    // Calculate scores
+    let config = KPIConfig::default();
+
+    let delivery_metrics = DeliveryMetrics {
+        completed_tickets: ticket_metrics.completed_tickets,
+        on_time_tickets: ticket_metrics.on_time_tickets,
+        early_deliveries: ticket_metrics.early_deliveries,
+        late_critical_tickets: ticket_metrics.late_critical_tickets,
+        reopened_tickets: ticket_metrics.reopened_tickets,
+    };
+
+    let delivery_score = calculate_delivery_score(&delivery_metrics);
+    let quality_score = calculate_quality_score(
+        &bug_metrics.dev_error_by_severity,
+        bug_metrics.conceptual_bugs,
+        &config,
+    );
+    let overall_score = calculate_overall_score(delivery_score, quality_score, &config);
+
+    // Get previous scores for trend calculation
+    let previous_scores = get_previous_scores(&conn, &developer_id, month, year, 3)?;
+    let trend = calculate_trend(overall_score, &previous_scores);
+
+    // Calculate rates
+    let on_time_rate = if ticket_metrics.completed_tickets > 0 {
+        (ticket_metrics.on_time_tickets as f64 / ticket_metrics.completed_tickets as f64) * 100.0
+    } else {
+        100.0
+    };
+
+    let avg_delivery_time = if ticket_metrics.completed_tickets > 0 {
+        ticket_metrics.total_delivery_days / ticket_metrics.completed_tickets as f64
+    } else {
+        0.0
+    };
+
+    // Return without storing - use a temporary ID
+    Ok(MonthlyKPI {
+        id: format!("preview-{}-{}-{}", developer_id, year, month),
+        developer_id,
+        month,
+        year,
+        total_tickets: ticket_metrics.total_tickets,
+        completed_tickets: ticket_metrics.completed_tickets,
+        on_time_tickets: ticket_metrics.on_time_tickets,
+        late_tickets: ticket_metrics.late_tickets,
+        reopened_tickets: ticket_metrics.reopened_tickets,
+        on_time_rate,
+        avg_delivery_time,
+        total_bugs: bug_metrics.total_bugs,
+        developer_error_bugs: bug_metrics.developer_error_bugs,
+        conceptual_bugs: bug_metrics.conceptual_bugs,
+        other_bugs: bug_metrics.other_bugs,
+        delivery_score,
+        quality_score,
+        overall_score,
+        trend: Some(trend),
+        generated_at: now.to_rfc3339(),
+    })
 }

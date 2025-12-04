@@ -256,9 +256,13 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 6.3 Real-time KPI Preview
 
-- [ ] Implement `get_current_month_kpi` command
-- [ ] Calculate on-the-fly (not stored)
-- [ ] Used for dashboard display
+- [x] Implement `get_current_month_kpi` command
+- [x] Calculate on-the-fly (not stored) - uses temporary preview ID
+- [x] Used for dashboard display
+- [x] Frontend `useKPI` hook with:
+  - `currentKPI` - real-time preview for current month
+  - `history` - all historical KPI records
+  - `generateKPI(month, year)` - generate and store KPI for a specific month
 
 **Deliverable:** Working KPI calculation engine
 
