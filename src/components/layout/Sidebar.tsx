@@ -1,0 +1,58 @@
+import { NavLink } from "react-router-dom";
+import { cn } from "@/lib/utils";
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: string;
+}
+
+const navItems: NavItem[] = [
+  { label: "Dashboard", href: "/", icon: "📊" },
+  { label: "Developers", href: "/developers", icon: "👥" },
+  { label: "Tickets", href: "/tickets", icon: "🎫" },
+  { label: "Bugs", href: "/bugs", icon: "🐛" },
+  { label: "Reports", href: "/reports", icon: "📈" },
+];
+
+export function Sidebar() {
+  return (
+    <aside className="flex h-screen w-64 flex-col border-r border-border bg-card">
+      {/* Logo */}
+      <div className="flex h-16 items-center gap-2 border-b border-border px-6">
+        <span className="text-2xl">🎯</span>
+        <span className="text-xl font-bold tracking-tight">KPI Tool</span>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 space-y-1 p-4">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.href}
+            to={item.href}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              )
+            }
+          >
+            <span className="text-lg">{item.icon}</span>
+            {item.label}
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* Footer */}
+      <div className="border-t border-border p-4">
+        <div className="text-xs text-muted-foreground">
+          <p>KPI Tool v0.1.0</p>
+          <p className="mt-1">Phase 2 - UI Foundation</p>
+        </div>
+      </div>
+    </aside>
+  );
+}
+

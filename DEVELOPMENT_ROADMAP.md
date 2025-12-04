@@ -89,28 +89,28 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 2.1 Layout Components
 
-- [ ] Create `MainLayout` component (sidebar + content area)
-- [ ] Create `Sidebar` component with navigation
-- [ ] Create `Header` component
-- [ ] Set up React Router for page navigation
-- [ ] Implement dark/light mode toggle
+- [x] Create `MainLayout` component (sidebar + content area)
+- [x] Create `Sidebar` component with navigation
+- [x] Create `Header` component
+- [x] Set up React Router for page navigation
+- [x] Implement dark/light mode toggle
 
 ### 2.2 Common UI Components
 
-- [ ] Set up shadcn/ui base components (Button, Input, Select, Dialog, etc.)
-- [ ] Create `DataTable` component for lists
-- [ ] Create `StatCard` component for metrics display
-- [ ] Create `StatusBadge` component (for ticket/bug status)
-- [ ] Create `EmptyState` component
-- [ ] Create `LoadingSpinner` component
-- [ ] Create `ConfirmDialog` component
+- [x] Set up shadcn/ui base components (Button, Input, Select, Dialog, etc.)
+- [x] Create `DataTable` component for lists
+- [x] Create `StatCard` component for metrics display
+- [x] Create `StatusBadge` component (for ticket/bug status)
+- [x] Create `EmptyState` component
+- [x] Create `LoadingSpinner` component
+- [x] Create `ConfirmDialog` component
 
 ### 2.3 Form Components
 
-- [ ] Create reusable `FormField` wrapper
-- [ ] Create `DatePicker` component
-- [ ] Create `SelectField` component (for dropdowns)
-- [ ] Set up form validation (react-hook-form + zod)
+- [x] Create reusable `FormField` wrapper
+- [x] Create `DatePicker` component
+- [x] Create `SelectField` component (for dropdowns)
+- [x] Set up form validation (react-hook-form + zod)
 
 **Deliverable:** App shell with navigation, consistent styling
 
