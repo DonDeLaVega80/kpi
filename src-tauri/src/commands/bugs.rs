@@ -5,7 +5,7 @@ use tauri::State;
 use uuid::Uuid;
 
 /// Helper to parse a bug from a database row
-fn parse_bug_row(row: &rusqlite::Row) -> Result<Bug, rusqlite::Error> {
+pub fn parse_bug_row(row: &rusqlite::Row) -> Result<Bug, rusqlite::Error> {
     let severity_str: String = row.get(6)?;
     let bug_type_str: String = row.get(7)?;
     Ok(Bug {

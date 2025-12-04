@@ -1,4 +1,5 @@
 mod commands;
+mod config;
 mod db;
 mod models;
 mod services;
@@ -43,6 +44,16 @@ pub fn run() {
             get_kpi_history,
             get_current_month_kpi,
             export_monthly_kpi_csv,
+            // Config commands
+            get_kpi_config,
+            save_kpi_config_command,
+            // Data management commands
+            export_all_data,
+            import_data,
+            clear_all_data,
+            backup_database,
+            restore_database,
+            restart_app,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -93,7 +93,7 @@ A step-by-step guide to building the KPI Tool from scratch.
 - [x] Create `Sidebar` component with navigation
 - [x] Create `Header` component
 - [x] Set up React Router for page navigation
-- [x] Implement dark/light mode toggle
+- [x] Configure light mode only (dark mode removed)
 
 ### 2.2 Common UI Components
 
@@ -356,29 +356,27 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 9.1 Settings Page
 
-- [ ] Create `Settings` page
-- [ ] Organize into sections
+- [x] Create `Settings` page
+- [x] Organize into sections
 
 ### 9.2 KPI Configuration
 
-- [ ] Delivery score weight slider
-- [ ] Quality score weight slider
-- [ ] Bug severity penalties (editable)
-- [ ] Save to config file
+- [x] Delivery score weight slider
+- [x] Quality score weight slider
+- [x] Bug severity penalties (editable)
+- [x] Save to config file
 
 ### 9.3 Data Management
 
-- [ ] Manual backup button
-- [ ] Restore from backup
-- [ ] Export all data (JSON)
-- [ ] Import data (JSON)
-- [ ] Clear all data (with confirmation)
+- [x] Manual backup button
+- [x] Restore from backup
+- [x] Export all data (JSON)
+- [x] Import data (JSON)
+- [x] Clear all data (with confirmation)
 
 ### 9.4 App Preferences
 
-- [ ] Theme toggle (dark/light/system)
-- [ ] Working days configuration
-- [ ] Date format preference
+- [x] Light mode only (theme toggle removed)
 
 **Deliverable:** Configurable app settings
 

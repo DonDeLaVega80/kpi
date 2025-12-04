@@ -10,6 +10,7 @@ import type {
   CreateBugInput,
   UpdateBugInput,
   MonthlyKPI,
+  KPIConfig,
 } from "@/types";
 
 // Developer commands
@@ -139,4 +140,52 @@ export async function exportMonthlyKPIAsCSV(
     month,
     year,
   });
+}
+
+// Config commands
+export async function getKPIConfig(): Promise<KPIConfig> {
+  return invoke("get_kpi_config");
+}
+
+export async function saveKPIConfig(
+  deliveryWeight: number,
+  qualityWeight: number,
+  bugPenaltyCritical: number,
+  bugPenaltyHigh: number,
+  bugPenaltyMedium: number,
+  bugPenaltyLow: number
+): Promise<void> {
+  return invoke("save_kpi_config_command", {
+    deliveryWeight,
+    qualityWeight,
+    bugPenaltyCritical,
+    bugPenaltyHigh,
+    bugPenaltyMedium,
+    bugPenaltyLow,
+  });
+}
+
+// Data management commands
+export async function exportAllData(): Promise<string> {
+  return invoke("export_all_data");
+}
+
+export async function importData(jsonData: string): Promise<void> {
+  return invoke("import_data", { jsonData });
+}
+
+export async function clearAllData(): Promise<void> {
+  return invoke("clear_all_data");
+}
+
+export async function backupDatabase(): Promise<string> {
+  return invoke("backup_database");
+}
+
+export async function restoreDatabase(backupPath: string): Promise<void> {
+  return invoke("restore_database", { backupPath });
+}
+
+export async function restartApp(): Promise<void> {
+  return invoke("restart_app");
 }
