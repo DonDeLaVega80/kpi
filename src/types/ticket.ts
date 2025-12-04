@@ -12,16 +12,16 @@ export interface Ticket {
   title: string;
   description?: string;
   developerId: string;
-  assignedDate: Date;
-  dueDate: Date;
-  completedDate?: Date;
+  assignedDate: string;
+  dueDate: string;
+  completedDate?: string;
   status: TicketStatus;
   estimatedHours?: number;
   actualHours?: number;
   complexity: TicketComplexity;
   reopenCount: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateTicketInput {
@@ -42,4 +42,3 @@ export interface UpdateTicketInput {
   status?: TicketStatus;
   actualHours?: number;
 }
-

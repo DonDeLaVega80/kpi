@@ -17,9 +17,9 @@ export interface Bug {
   severity: BugSeverity;
   bugType: BugType;
   isResolved: boolean;
-  resolvedDate?: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  resolvedDate?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateBugInput {
@@ -39,4 +39,3 @@ export interface UpdateBugInput {
   bugType?: BugType;
   isResolved?: boolean;
 }
-
