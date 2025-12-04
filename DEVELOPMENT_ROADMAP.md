@@ -70,14 +70,14 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 1.3 Bug Model & CRUD
 
-- [ ] Create `Bug` struct in Rust
-- [ ] Implement `create_bug` command
-- [ ] Implement `get_bugs_by_ticket` command
-- [ ] Implement `get_bugs_by_developer` command
-- [ ] Implement `update_bug` command
-- [ ] Implement `resolve_bug` command
-- [ ] Create TypeScript types
-- [ ] Create `useBugs` hook
+- [x] Create `Bug` struct in Rust
+- [x] Implement `create_bug` command (auto-link to ticket's developer)
+- [x] Implement `get_bugs_by_ticket` command
+- [x] Implement `get_bugs_by_developer` command
+- [x] Implement `update_bug` command
+- [x] Implement `resolve_bug` command
+- [x] Create TypeScript types
+- [x] Create `useBugs` hook
 
 **Deliverable:** All CRUD operations working via Tauri commands
 
