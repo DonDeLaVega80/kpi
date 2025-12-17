@@ -448,6 +448,61 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ---
 
+## Phase 12: Enhancements & Improvements
+
+**Estimated Time: 6-8 hours**
+
+### 12.1 Date/Time Handling Improvements
+
+- [ ] Fix date input validation bug (due date shows value but validation fails on create)
+- [ ] Enhance DatePicker component with month/year navigation for rapid date selection
+- [ ] Add time input support for assigned date and due date (currently only dates, but calculations use time)
+- [ ] Update database schema to use DATETIME instead of DATE for assigned_date, due_date, completed_date
+- [ ] Create DateTimePicker component (date + time selection)
+- [ ] Allow past due dates when creating tickets (for historical data entry)
+- [ ] Update validation to allow historical dates when appropriate
+
+### 12.2 Ticket/Bug Completion & Editing Enhancements
+
+- [ ] Add date/time picker when marking ticket as completed
+- [ ] Add date/time picker when marking bug as resolved
+- [ ] Implement `update_completion_date` command for tickets (with KPI recalculation trigger)
+- [ ] Implement `update_resolution_date` command for bugs (with KPI recalculation trigger)
+- [ ] Add UI to edit completion date/time in ticket detail view
+- [ ] Add UI to edit resolution date/time in bug detail view
+- [ ] Implement `update_reopen_count` command for tickets
+- [ ] Add UI to manually edit reopen count in ticket detail view
+- [ ] Implement `update_due_date` command for tickets (with KPI recalculation trigger)
+- [ ] Add UI to update due date in ticket detail view
+- [ ] Ensure KPI recalculation runs automatically when dates/counts change
+
+### 12.3 Settings & UI Improvements
+
+- [ ] Remove "App Preferences" section from Settings page (no options currently)
+- [ ] Create `ChangelogDialog` component to display version changelog
+- [ ] Add click handler to version number in Settings "About" section
+- [ ] Create `CHANGELOG.md` file with version history
+- [ ] Implement changelog parsing and display in dialog
+- [ ] Add "Report Bug" button in Settings page
+- [ ] Implement GitHub issue creation (open browser to GitHub issue creation page with pre-filled template)
+- [ ] Add GitHub repository URL to config/constants
+
+### 12.4 Auto-Update System
+
+- [ ] Research Tauri auto-updater capabilities
+- [ ] Set up update server/endpoint (GitHub Releases API or custom server)
+- [ ] Implement version checking on app startup
+- [ ] Create update notification UI component
+- [ ] Implement update download and installation flow
+- [ ] Ensure database migrations run automatically on update
+- [ ] Test update from 0.1.0 to 0.2.0 without data loss
+- [ ] Add version migration logic to handle schema changes
+- [ ] Create backup before update (safety measure)
+
+**Deliverable:** Enhanced date/time handling, improved ticket/bug editing, cleaner settings, changelog viewer, bug reporting, and auto-update system
+
+---
+
 ## Summary Timeline
 
 | Phase     | Description             | Est. Time        |
@@ -464,7 +519,8 @@ A step-by-step guide to building the KPI Tool from scratch.
 | 9         | Settings                | 2-3 hours        |
 | 10        | Polish & Testing        | 3-4 hours        |
 | 11        | Build & Distribution    | 2-3 hours        |
-| **Total** |                         | **~40-50 hours** |
+| 12        | Enhancements & Improvements | 6-8 hours    |
+| **Total** |                         | **~46-58 hours** |
 
 ---
 
@@ -475,7 +531,7 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5
                                                     ↓
                               Phase 8 ← Phase 7 ← Phase 6
                                 ↓
-                            Phase 9 → Phase 10 → Phase 11
+                            Phase 9 → Phase 10 → Phase 11 → Phase 12
 ```
 
 ### MVP (Minimum Viable Product)
