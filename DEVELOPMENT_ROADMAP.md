@@ -489,15 +489,15 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 12.4 Auto-Update System
 
-- [ ] Research Tauri auto-updater capabilities
-- [ ] Set up update server/endpoint (GitHub Releases API or custom server)
-- [ ] Implement version checking on app startup
-- [ ] Create update notification UI component
-- [ ] Implement update download and installation flow
-- [ ] Ensure database migrations run automatically on update
+- [x] Research Tauri auto-updater capabilities
+- [x] Set up update server/endpoint (GitHub Releases API or custom server)
+- [x] Implement version checking on app startup
+- [x] Create update notification UI component
+- [x] Implement update download and installation flow
+- [x] Ensure database migrations run automatically on update
 - [ ] Test update from 0.1.0 to 0.2.0 without data loss
-- [ ] Add version migration logic to handle schema changes
-- [ ] Create backup before update (safety measure)
+- [x] Add version migration logic to handle schema changes
+- [x] Create backup before update (safety measure)
 
 **Deliverable:** Enhanced date/time handling, improved ticket/bug editing, cleaner settings, changelog viewer, bug reporting, and auto-update system
 

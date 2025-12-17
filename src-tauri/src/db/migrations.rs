@@ -19,6 +19,7 @@ pub fn run_migrations(conn: &Connection) -> Result<(), String> {
         ("002_bug_resolver", include_str!("migrations/002_bug_resolver.sql")),
         ("003_add_indexes", include_str!("migrations/003_add_indexes.sql")),
         ("004_datetime_fields", include_str!("migrations/004_datetime_fields.sql")),
+        ("005_app_version", include_str!("migrations/005_app_version.sql")),
     ];
 
     for (name, sql) in migrations {

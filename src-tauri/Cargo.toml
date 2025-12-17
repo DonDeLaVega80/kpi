@@ -40,3 +40,6 @@ tokio = { version = "1", features = ["sync"] }
 
 # Cross-platform directory paths
 dirs = "5"
+
+# HTTP client for update checking
+reqwest = { version = "0.12", features = ["json"] }

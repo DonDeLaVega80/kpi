@@ -155,6 +155,30 @@ export async function openUrl(url: string): Promise<void> {
   return invoke("open_url", { url });
 }
 
+// Updater commands
+export async function getAppVersion(): Promise<string> {
+  return invoke("get_app_version");
+}
+
+export async function checkForUpdates(currentVersion: string): Promise<UpdateInfo | null> {
+  return invoke("check_for_updates", { currentVersion });
+}
+
+export async function updateAppVersion(version: string): Promise<void> {
+  return invoke("update_app_version", { version });
+}
+
+export async function backupBeforeUpdate(): Promise<string> {
+  return invoke("backup_before_update");
+}
+
+export interface UpdateInfo {
+  version: string;
+  url: string;
+  releaseNotes?: string;
+  publishedAt?: string;
+}
+
 // KPI commands
 export async function generateMonthlyKPI(
   developerId: string,

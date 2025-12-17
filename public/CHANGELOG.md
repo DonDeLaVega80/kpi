@@ -45,10 +45,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Auto-update system with GitHub Releases API integration
+- Automatic version checking on app startup
+- Update notification dialog with release notes
+- Automatic database backup before updates
+- App version tracking in database
+- Platform-specific update asset detection (macOS, Linux, Windows)
+
 ### Planned
-- Auto-update system
-- Changelog viewer
-- GitHub issue reporting integration
 - Team management
 - Sprint integration
 - Custom KPI formulas
