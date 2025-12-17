@@ -464,17 +464,17 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 12.2 Ticket/Bug Completion & Editing Enhancements
 
-- [ ] Add date/time picker when marking ticket as completed
-- [ ] Add date/time picker when marking bug as resolved
-- [ ] Implement `update_completion_date` command for tickets (with KPI recalculation trigger)
-- [ ] Implement `update_resolution_date` command for bugs (with KPI recalculation trigger)
-- [ ] Add UI to edit completion date/time in ticket detail view
-- [ ] Add UI to edit resolution date/time in bug detail view
-- [ ] Implement `update_reopen_count` command for tickets
-- [ ] Add UI to manually edit reopen count in ticket detail view
-- [ ] Implement `update_due_date` command for tickets (with KPI recalculation trigger)
-- [ ] Add UI to update due date in ticket detail view
-- [ ] Ensure KPI recalculation runs automatically when dates/counts change
+- [x] Add date/time picker when marking ticket as completed
+- [x] Add date/time picker when marking bug as resolved
+- [x] Implement `update_completion_date` command for tickets (with KPI recalculation trigger)
+- [x] Implement `update_resolution_date` command for bugs (with KPI recalculation trigger)
+- [x] Add UI to edit completion date/time in ticket detail view
+- [x] Add UI to edit resolution date/time in bug detail view
+- [x] Implement `update_reopen_count` command for tickets
+- [x] Add UI to manually edit reopen count in ticket detail view
+- [x] Implement `update_due_date` command for tickets (with KPI recalculation trigger)
+- [x] Add UI to update due date in ticket detail view
+- [x] Ensure KPI recalculation runs automatically when dates/counts change
 
 ### 12.3 Settings & UI Improvements
 

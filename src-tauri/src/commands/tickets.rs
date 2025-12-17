@@ -279,6 +279,7 @@ pub fn complete_ticket(
     state: State<DbState>,
     id: String,
     actual_hours: Option<f64>,
+    completion_date: Option<String>,
 ) -> Result<Ticket, String> {
     let conn = state.0.lock().map_err(|e| format!("Database lock error: {}", e))?;
 
@@ -286,7 +287,11 @@ pub fn complete_ticket(
     let current = get_ticket_by_id_internal(&conn, &id)?;
 
     let now = Utc::now().to_rfc3339();
-    let today = normalize_to_datetime(&Utc::now().format("%Y-%m-%d").to_string())?;
+    let completed_datetime_str = if let Some(date_str) = completion_date {
+        normalize_to_datetime(&date_str)?
+    } else {
+        normalize_to_datetime(&Utc::now().format("%Y-%m-%d").to_string())?
+    };
 
     // Check if completed on time (compare datetime values)
     let due_datetime = NaiveDateTime::parse_from_str(&current.due_date, "%Y-%m-%d %H:%M:%S")
@@ -298,7 +303,7 @@ pub fn complete_ticket(
         })
         .map_err(|e| format!("Invalid due date format: {}", e))?;
     
-    let completed_datetime = NaiveDateTime::parse_from_str(&today, "%Y-%m-%d %H:%M:%S")
+    let completed_datetime = NaiveDateTime::parse_from_str(&completed_datetime_str, "%Y-%m-%d %H:%M:%S")
         .map_err(|e| format!("Invalid date format: {}", e))?;
     
     let _was_on_time = completed_datetime <= due_datetime;
@@ -314,7 +319,7 @@ pub fn complete_ticket(
         "UPDATE tickets SET status = ?1, completed_date = ?2, actual_hours = ?3, updated_at = ?4 WHERE id = ?5",
         (
             TicketStatus::Completed.as_str(),
-            &today,
+            &completed_datetime_str,
             &total_actual_hours,
             &now,
             &id,
@@ -329,7 +334,7 @@ pub fn complete_ticket(
         developer_id: current.developer_id,
         assigned_date: current.assigned_date,
         due_date: current.due_date,
-        completed_date: Some(today),
+        completed_date: Some(completed_datetime_str),
         status: TicketStatus::Completed,
         estimated_hours: current.estimated_hours,
         actual_hours: total_actual_hours,
@@ -378,4 +383,79 @@ pub fn reopen_ticket(state: State<DbState>, id: String) -> Result<Ticket, String
         created_at: current.created_at,
         updated_at: now,
     })
+}
+
+/// Update completion date/time for a ticket (triggers KPI recalculation)
+#[tauri::command]
+pub fn update_completion_date(
+    state: State<DbState>,
+    id: String,
+    completion_date: String,
+) -> Result<Ticket, String> {
+    let conn = state.0.lock().map_err(|e| format!("Database lock error: {}", e))?;
+
+    // Get current ticket
+    let _current = get_ticket_by_id_internal(&conn, &id)?;
+
+    let now = Utc::now().to_rfc3339();
+    let completed_datetime_str = normalize_to_datetime(&completion_date)?;
+
+    conn.execute(
+        "UPDATE tickets SET completed_date = ?1, updated_at = ?2 WHERE id = ?3",
+        (&completed_datetime_str, &now, &id),
+    )
+    .map_err(|e| format!("Failed to update completion date: {}", e))?;
+
+    get_ticket_by_id_internal(&conn, &id)
+}
+
+/// Update due date for a ticket (triggers KPI recalculation)
+#[tauri::command]
+pub fn update_due_date(
+    state: State<DbState>,
+    id: String,
+    due_date: String,
+) -> Result<Ticket, String> {
+    let conn = state.0.lock().map_err(|e| format!("Database lock error: {}", e))?;
+
+    // Get current ticket
+    let _current = get_ticket_by_id_internal(&conn, &id)?;
+
+    let now = Utc::now().to_rfc3339();
+    let due_datetime_str = normalize_to_datetime(&due_date)?;
+
+    conn.execute(
+        "UPDATE tickets SET due_date = ?1, updated_at = ?2 WHERE id = ?3",
+        (&due_datetime_str, &now, &id),
+    )
+    .map_err(|e| format!("Failed to update due date: {}", e))?;
+
+    get_ticket_by_id_internal(&conn, &id)
+}
+
+/// Update reopen count for a ticket (triggers KPI recalculation)
+#[tauri::command]
+pub fn update_reopen_count(
+    state: State<DbState>,
+    id: String,
+    reopen_count: i32,
+) -> Result<Ticket, String> {
+    let conn = state.0.lock().map_err(|e| format!("Database lock error: {}", e))?;
+
+    // Get current ticket
+    let _current = get_ticket_by_id_internal(&conn, &id)?;
+
+    if reopen_count < 0 {
+        return Err("Reopen count cannot be negative".to_string());
+    }
+
+    let now = Utc::now().to_rfc3339();
+
+    conn.execute(
+        "UPDATE tickets SET reopen_count = ?1, updated_at = ?2 WHERE id = ?3",
+        (reopen_count, &now, &id),
+    )
+    .map_err(|e| format!("Failed to update reopen count: {}", e))?;
+
+    get_ticket_by_id_internal(&conn, &id)
 }

@@ -33,6 +33,9 @@ pub fn run() {
             update_ticket_status,
             complete_ticket,
             reopen_ticket,
+            update_completion_date,
+            update_due_date,
+            update_reopen_count,
             // Bug commands
             create_bug,
             get_all_bugs,
@@ -40,6 +43,7 @@ pub fn run() {
             get_bugs_by_developer,
             update_bug,
             resolve_bug,
+            update_resolution_date,
             // KPI/Report commands
             generate_monthly_kpi,
             get_kpi_history,
