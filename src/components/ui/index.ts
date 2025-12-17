@@ -49,6 +49,9 @@ export { WelcomeScreen } from "./welcome-screen";
 // Database Error
 export { DatabaseError } from "./database-error";
 
+// Changelog Dialog
+export { ChangelogDialog } from "./changelog-dialog";
+
 // Pagination
 export { Pagination } from "./pagination";
 

@@ -150,6 +150,11 @@ export async function updateResolutionDate(
   return invoke("update_resolution_date", { id, resolvedDate });
 }
 
+// Utility commands
+export async function openUrl(url: string): Promise<void> {
+  return invoke("open_url", { url });
+}
+
 // KPI commands
 export async function generateMonthlyKPI(
   developerId: string,

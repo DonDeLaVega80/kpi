@@ -478,14 +478,14 @@ A step-by-step guide to building the KPI Tool from scratch.
 
 ### 12.3 Settings & UI Improvements
 
-- [ ] Remove "App Preferences" section from Settings page (no options currently)
-- [ ] Create `ChangelogDialog` component to display version changelog
-- [ ] Add click handler to version number in Settings "About" section
-- [ ] Create `CHANGELOG.md` file with version history
-- [ ] Implement changelog parsing and display in dialog
-- [ ] Add "Report Bug" button in Settings page
-- [ ] Implement GitHub issue creation (open browser to GitHub issue creation page with pre-filled template)
-- [ ] Add GitHub repository URL to config/constants
+- [x] Remove "App Preferences" section from Settings page (no options currently)
+- [x] Create `ChangelogDialog` component to display version changelog
+- [x] Add click handler to version number in Settings "About" section
+- [x] Create `CHANGELOG.md` file with version history
+- [x] Implement changelog parsing and display in dialog
+- [x] Add "Report Bug" button in Settings page
+- [x] Implement GitHub issue creation (open browser to GitHub issue creation page with pre-filled template)
+- [x] Add GitHub repository URL to config/constants
 
 ### 12.4 Auto-Update System
 
