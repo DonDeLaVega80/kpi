@@ -482,7 +482,7 @@ Updates are checked automatically on startup. To check manually, restart the app
 
 ## Release Information
 
-**Current Version**: 0.1.0  
+**Current Version**: 0.2.0  
 **Supported Platforms**: macOS, Ubuntu/Linux, Windows  
 **Build Date**: December 2024
 

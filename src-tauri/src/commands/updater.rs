@@ -80,9 +80,9 @@ pub async fn check_for_updates(current_version: String) -> Result<Option<UpdateI
     // Extract version from tag (remove 'v' prefix if present)
     let latest_version = release.tag_name.trim_start_matches('v').to_string();
     
-    // Compare versions (simple string comparison for now)
-    // In production, use proper semantic versioning comparison
-    if latest_version != current_version {
+    // Compare versions using proper semantic versioning
+    // Only return update if latest_version > current_version
+    if is_version_newer(&latest_version, &current_version) {
         // Find the appropriate asset for the current platform
         let platform_asset = find_platform_asset(&release.assets);
         
@@ -95,6 +95,50 @@ pub async fn check_for_updates(current_version: String) -> Result<Option<UpdateI
     } else {
         Ok(None)
     }
+}
+
+/// Compare semantic versions (e.g., "0.2.0" vs "0.1.0")
+/// Returns true if latest_version > current_version
+fn is_version_newer(latest: &str, current: &str) -> bool {
+    // Parse versions into (major, minor, patch) tuples
+    let parse_version = |v: &str| -> Option<(u32, u32, u32)> {
+        let parts: Vec<&str> = v.split('.').collect();
+        if parts.len() >= 3 {
+            let major = parts[0].parse().ok()?;
+            let minor = parts[1].parse().ok()?;
+            let patch = parts[2].split('-').next()?.parse().ok()?; // Handle pre-release versions
+            Some((major, minor, patch))
+        } else {
+            None
+        }
+    };
+    
+    let latest_parts = match parse_version(latest) {
+        Some(parts) => parts,
+        None => return false, // Invalid version format, don't suggest update
+    };
+    
+    let current_parts = match parse_version(current) {
+        Some(parts) => parts,
+        None => return true, // Invalid current version, assume update needed
+    };
+    
+    // Compare major, minor, patch in order
+    if latest_parts.0 > current_parts.0 {
+        return true;
+    } else if latest_parts.0 < current_parts.0 {
+        return false;
+    }
+    
+    // Major versions are equal, compare minor
+    if latest_parts.1 > current_parts.1 {
+        return true;
+    } else if latest_parts.1 < current_parts.1 {
+        return false;
+    }
+    
+    // Major and minor are equal, compare patch
+    latest_parts.2 > current_parts.2
 }
 
 /// Find the appropriate asset for the current platform

@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Planned
+- Team management
+- Sprint integration
+- Custom KPI formulas
+
+---
+
+## [0.2.0] - 2024-12-29
+
+### Added
+- Auto-update system with GitHub Releases API integration
+- Automatic version checking on app startup
+- Update notification dialog with release notes
+- Automatic database backup before updates
+- App version tracking in database
+- Platform-specific update asset detection (macOS, Linux, Windows)
+- Changelog viewer accessible from Settings and sidebar footer
+- GitHub issue reporting integration with pre-filled bug report template
+- Enhanced date/time pickers with month/year navigation
+- DateTimePicker component for precise timestamp selection
+- Historical data entry support (past due dates allowed)
+- Ticket completion with date/time selection
+- Bug resolution with date/time selection
+- Edit completion date, due date, and reopen count for tickets
+- Edit resolution date for bugs
+- Automatic KPI recalculation when dates/counts change
+
+### Changed
+- Removed "App Preferences" section from Settings (no options currently)
+- Improved date input validation and user experience
+- Database schema updated to use DATETIME fields for better time precision
+
+### Fixed
+- Date input validation bug in ticket creation form
+- Database migration handling for missing columns
+- Version display consistency across app
+
+---
+
 ## [0.1.0] - 2024-12-XX
 
 ### Added
@@ -17,13 +58,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Data export/import functionality
 - Database backup and restore
 - Settings page for KPI configuration
-- Enhanced date/time pickers with month/year navigation
-- Historical data entry support
-- Ticket completion with date/time selection
-- Bug resolution with date/time selection
-- Edit completion date, due date, and reopen count for tickets
-- Edit resolution date for bugs
-- Automatic KPI recalculation when dates/counts change
 
 ### Features
 - **Developer Management**: Track developer information, roles, and active status
@@ -41,22 +75,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tailwind CSS + shadcn/ui for modern UI
 - Responsive design with dark mode support
 
----
-
-## [Unreleased]
-
-### Added
-- Auto-update system with GitHub Releases API integration
-- Automatic version checking on app startup
-- Update notification dialog with release notes
-- Automatic database backup before updates
-- App version tracking in database
-- Platform-specific update asset detection (macOS, Linux, Windows)
-
-### Planned
-- Team management
-- Sprint integration
-- Custom KPI formulas
-
 [0.1.0]: https://github.com/Rantoniaina/kpi/releases/tag/v0.1.0
-
+[0.2.0]: https://github.com/Rantoniaina/kpi/releases/tag/v0.2.0

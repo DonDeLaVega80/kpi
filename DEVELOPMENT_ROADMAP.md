@@ -443,6 +443,8 @@ A step-by-step guide to building the KPI Tool from scratch.
 - [x] Create GitHub release
 - [x] Upload `.dmg` artifact
 - [x] Write release notes
+- [x] Update version to 0.2.0
+- [x] Update CHANGELOG.md for 0.2.0
 
 **Deliverable:** Distributable macOS application
 
