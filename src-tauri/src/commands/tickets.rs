@@ -1,8 +1,39 @@
 use crate::db::DbState;
 use crate::models::{CreateTicketInput, Ticket, TicketComplexity, TicketStatus, UpdateTicketInput};
-use chrono::{NaiveDate, Utc};
+use chrono::{NaiveDate, NaiveDateTime, Utc};
 use tauri::State;
 use uuid::Uuid;
+
+/// Helper to normalize a date string to DATETIME format
+/// Accepts both YYYY-MM-DD and YYYY-MM-DDTHH:mm:ss formats
+/// Returns YYYY-MM-DD HH:mm:ss format for SQLite DATETIME
+fn normalize_to_datetime(date_str: &str) -> Result<String, String> {
+    // If it already contains time (T separator), parse as datetime
+    if date_str.contains('T') {
+        // Parse ISO format: YYYY-MM-DDTHH:mm or YYYY-MM-DDTHH:mm:ss
+        let parts: Vec<&str> = date_str.split('T').collect();
+        if parts.len() == 2 {
+            let date_part = parts[0];
+            let time_part = parts[1];
+            // Ensure time part has seconds
+            let time_with_seconds = if time_part.len() == 5 {
+                format!("{}:00", time_part) // Add seconds if missing
+            } else if time_part.len() >= 8 {
+                time_part[..8].to_string() // Take first 8 chars (HH:mm:ss)
+            } else {
+                format!("{}:00:00", time_part) // Fallback
+            };
+            return Ok(format!("{} {}", date_part, time_with_seconds));
+        }
+    }
+    
+    // If it's just a date (YYYY-MM-DD), add default time (00:00:00)
+    if let Ok(_) = NaiveDate::parse_from_str(date_str, "%Y-%m-%d") {
+        return Ok(format!("{} 00:00:00", date_str));
+    }
+    
+    Err(format!("Invalid date format: {}", date_str))
+}
 
 /// Helper to parse a ticket from a database row
 pub fn parse_ticket_row(row: &rusqlite::Row) -> Result<Ticket, rusqlite::Error> {
@@ -52,7 +83,8 @@ pub fn create_ticket(
 
     let id = Uuid::new_v4().to_string();
     let now = Utc::now().to_rfc3339();
-    let today = Utc::now().format("%Y-%m-%d").to_string();
+    let today = normalize_to_datetime(&Utc::now().format("%Y-%m-%d").to_string())?;
+    let due_date = normalize_to_datetime(&input.due_date)?;
 
     conn.execute(
         "INSERT INTO tickets (id, title, description, developer_id, assigned_date, due_date, status, estimated_hours, complexity, reopen_count, created_at, updated_at)
@@ -63,7 +95,7 @@ pub fn create_ticket(
             &input.description,
             &input.developer_id,
             &today,
-            &input.due_date,
+            &due_date,
             TicketStatus::Assigned.as_str(),
             &input.estimated_hours,
             complexity.as_str(),
@@ -80,7 +112,7 @@ pub fn create_ticket(
         description: input.description,
         developer_id: input.developer_id,
         assigned_date: today,
-        due_date: input.due_date,
+        due_date,
         completed_date: None,
         status: TicketStatus::Assigned,
         estimated_hours: input.estimated_hours,
@@ -173,7 +205,11 @@ pub fn update_ticket(
     let title = input.title.unwrap_or(current.title);
     let description = input.description.or(current.description);
     let developer_id = input.developer_id.unwrap_or(current.developer_id);
-    let due_date = input.due_date.unwrap_or(current.due_date);
+        let due_date = if let Some(dd) = input.due_date {
+            normalize_to_datetime(&dd)?
+        } else {
+            current.due_date
+        };
     let status = match input.status {
         Some(s) => TicketStatus::from_str(&s)?,
         None => current.status,
@@ -250,15 +286,22 @@ pub fn complete_ticket(
     let current = get_ticket_by_id_internal(&conn, &id)?;
 
     let now = Utc::now().to_rfc3339();
-    let today = Utc::now().format("%Y-%m-%d").to_string();
+    let today = normalize_to_datetime(&Utc::now().format("%Y-%m-%d").to_string())?;
 
-    // Check if completed on time
-    let due_date = NaiveDate::parse_from_str(&current.due_date, "%Y-%m-%d")
+    // Check if completed on time (compare datetime values)
+    let due_datetime = NaiveDateTime::parse_from_str(&current.due_date, "%Y-%m-%d %H:%M:%S")
+        .or_else(|_| NaiveDateTime::parse_from_str(&current.due_date, "%Y-%m-%dT%H:%M:%S"))
+        .or_else(|_| {
+            // Fallback: try parsing as date and add time
+            NaiveDate::parse_from_str(&current.due_date, "%Y-%m-%d")
+                .map(|d| d.and_hms_opt(0, 0, 0).unwrap())
+        })
         .map_err(|e| format!("Invalid due date format: {}", e))?;
-    let completed_date = NaiveDate::parse_from_str(&today, "%Y-%m-%d")
+    
+    let completed_datetime = NaiveDateTime::parse_from_str(&today, "%Y-%m-%d %H:%M:%S")
         .map_err(|e| format!("Invalid date format: {}", e))?;
     
-    let _was_on_time = completed_date <= due_date;
+    let _was_on_time = completed_datetime <= due_datetime;
 
     // Accumulate actual hours: add new hours to existing hours
     let total_actual_hours = match (actual_hours, current.actual_hours) {
